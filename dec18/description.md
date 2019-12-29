@@ -45,7 +45,7 @@ In the decompiled version of the binary (pay attention to the architecture, it's
 
 So, let's assume it's Salsa20. With this assumption, we can go back to the main method and find out about the nonce and the secret being used.
 
-![Preparing main](HV19.18_dance_main_disassembly.jpeg)
+![Preparing main](HV19.18_dance-main-disassembly.jpg)
 
 Finding the nonce is pretty straight forward. There is an immediate value (`0xb132d0a8e78f4511`) passed to the `_dance` function.
 
