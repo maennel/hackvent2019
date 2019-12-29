@@ -8,7 +8,7 @@
 
 Visiting the following railway station has left lasting memories.
 
-![Cambridge North Railway station](bb374593-958a-479f-8328-79396471a7ab.jpg)
+![Cambridge North Railway station](bb374593-958a-479f-8328-79396471a7ab.png)
 
 Santas brand new gifts distribution system is heavily inspired by it. Here is your personal gift, can you extract the destination path of it?
 
