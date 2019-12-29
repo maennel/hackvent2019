@@ -68,7 +68,6 @@ print(v)
 
 This was a really cool challenge, as one thing lead to another in a really smooth way.
 
-## Flag: 
-```
-HV19{C0nsole_H0mebr3w_FTW}
-```
+## Flag
+
+`HV19{C0nsole_H0mebr3w_FTW}`

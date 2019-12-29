@@ -80,7 +80,6 @@ For going through the assembly, http://infocenter.arm.com/help/index.jsp was a g
 
 Also, it was crucial to configure the right architecture (`AArch64`) to be used by the disassembler.
 
-## Flag 
-```
-HV19{Danc1ng_Salsa_in_ass3mbly}
-```
+## Flag
+
+`HV19{Danc1ng_Salsa_in_ass3mbly}`
