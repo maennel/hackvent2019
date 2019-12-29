@@ -21,7 +21,7 @@ Analyze the "Encryption"-method and try to decrypt the flag.
 ### Additional info
 In the SQL dump, the following entries could be found: 
 
-```
+```default
 # `creditcards` table
 (1,'Sirius Black',		':)QVXSZUVY\ZYYZ[a'	,'12/2020'),
 (2,'Hermione Granger',	':)QOUW[VT^VY]bZ_'	,'04/2021'),
@@ -34,7 +34,7 @@ In the SQL dump, the following entries could be found:
 ```
 
 ## Aproach
-From the text it was clear that the ciphertext had to be reverted to a numeric string with a length of 14 to 19 positions (length of credit card numbers). It became also relatively clear from the quotation marks, that the encryption was more of an encoding and that it had to be some poor man's approach (which was also confirmed by `DrSchottkyd` later in the chat).
+From the text it was clear that the ciphertext had to be reverted to a numeric string with a length of 14 to 19 positions (length of credit card numbers). It became also relatively clear from the quotation marks, that the encryption was more of an encoding and that it had to be some poor man's approach (which was also confirmed by `DrSchottky` later in the chat).
 
 Looking at the given ciphertext with the algorithm being "SmileNcryptor 4.0", I simply dropped the prefixing smiley faces with them not adding any additional information (except that it's actually ciphertext).
 
@@ -46,7 +46,7 @@ Other than that, it seems that characters that lay higher in the ASCII value spa
 
 `multifred`, at some point (late at night/early in the morning), posted an incredible analysis that was a real eye opener (in the next morning) for me. He mapped ciphertext characters against an ASCII axis, which looks like this:
 
-```
+```default
 -----------------------------------------------------------------------------------------------
 !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
                          :
