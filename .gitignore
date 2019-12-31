@@ -3,5 +3,4 @@ notes*.txt
 tmp
 docs/*.md
 docs/.tex
-docs/*.css
 docs/*.pandoc
